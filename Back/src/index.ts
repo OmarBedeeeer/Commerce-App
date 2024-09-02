@@ -2,11 +2,13 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import connectToMongoDb from "./db/db.connection";
 import dotenv from "dotenv";
 import categoryRouter from "./modules/category/router/category.router";
+import subcategoryRouter from "./modules/subcategory/router/subcategory.router";
 const app: Application = express();
 dotenv.config();
 
 app.use(express.json());
 app.use("/api/v1", categoryRouter);
+app.use("/api/v1/category", subcategoryRouter);
 
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   res.status(404).send("Can't find this Page");
