@@ -1,3 +1,7 @@
+import {
+  createCategoryValidation,
+  updateCategoryValidation,
+} from "../../../utils/validation";
 import { authentecation, authorized } from "../../user/controller/user.auth";
 import { categoryController } from "../controller/category.controller";
 import { Router } from "express";
@@ -17,6 +21,7 @@ router.post(
   "/founder/create-category",
   authentecation,
   authorized("admin"),
+  createCategoryValidation,
   categoryController.createCategory
 );
 
@@ -24,6 +29,7 @@ router.patch(
   "/founder/:categoryId/update-category",
   authentecation,
   authorized("admin"),
+  updateCategoryValidation,
   categoryController.updateCategory
 );
 
