@@ -1,7 +1,7 @@
 import {
   createCategoryValidation,
   updateCategoryValidation,
-} from "../../../utils/validation";
+} from "../../../utils/category.validation";
 import { authentecation, authorized } from "../../user/controller/user.auth";
 import { categoryController } from "../controller/category.controller";
 import { Router } from "express";

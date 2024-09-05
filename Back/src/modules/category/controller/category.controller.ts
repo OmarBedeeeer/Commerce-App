@@ -2,9 +2,10 @@ import Category from "../model/category.model";
 import { NextFunction, Request, Response } from "express";
 import { AppError, CatchError } from "../../../utils/errorhandler";
 import { body, ParamsIds } from "../../../interfaces/Queryinterfaces";
+import { ICategory } from "../../../interfaces/dbinterfaces";
 export const categoryController = {
   getAll: CatchError(async (req: Request, res: Response) => {
-    const categories = await Category.find({ deleted: false });
+    const categories: ICategory[] = await Category.find({ deleted: false });
     if (!categories) throw new AppError("Categories not found", 404);
     res.send(categories);
   }),
@@ -12,7 +13,10 @@ export const categoryController = {
   getCategory: CatchError(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const category = await Category.findOne({ _id: id, deleted: false });
+    const category: ICategory | null = await Category.findOne({
+      _id: id,
+      deleted: false,
+    });
 
     if (!category) throw new AppError("Category not found", 404);
     res.status(200).json(category);
@@ -24,7 +28,7 @@ export const categoryController = {
 
       if (!req.user) throw new AppError("Unauthorized", 401);
 
-      const newCategory = await Category.create({
+      const newCategory: ICategory | null = await Category.create({
         name,
         description,
         image,
@@ -44,7 +48,7 @@ export const categoryController = {
       const { categoryId } = req.params;
       const { name, description, image } = req.body;
 
-      const category = await Category.findByIdAndUpdate(
+      const category: ICategory | null = await Category.findByIdAndUpdate(
         categoryId,
         { name, description, image },
         {
@@ -64,7 +68,7 @@ export const categoryController = {
   deactiveCategory: CatchError(async (req: Request, res: Response) => {
     const { categoryId } = req.params;
 
-    const category = await Category.findByIdAndUpdate(
+    const category: ICategory | null = await Category.findByIdAndUpdate(
       { _id: categoryId },
       { deleted: true, deletedAt: new Date() },
       { new: true }
@@ -78,7 +82,7 @@ export const categoryController = {
   }),
 
   getAllCategories: CatchError(async (req: Request, res: Response) => {
-    const categories = await Category.find();
+    const categories: ICategory[] = await Category.find();
     if (!categories) throw new AppError("Categories not found", 404);
     res.status(200).send(categories);
   }),
@@ -86,7 +90,7 @@ export const categoryController = {
   restoreCategory: CatchError(async (req: Request, res: Response) => {
     const { categoryId } = req.params;
 
-    const category = await Category.findByIdAndUpdate(
+    const category: ICategory | null = await Category.findByIdAndUpdate(
       { _id: categoryId },
       { deleted: false, deletedAt: null },
       { new: true }
@@ -101,7 +105,9 @@ export const categoryController = {
   deleteCategory: CatchError(async (req: Request, res: Response) => {
     const { categoryId } = req.params;
 
-    const category = await Category.findByIdAndDelete({ _id: categoryId });
+    const category: ICategory | null = await Category.findByIdAndDelete({
+      _id: categoryId,
+    });
     if (!category) throw new AppError("Can't delete Category", 400);
 
     res.status(200).json({
