@@ -3,10 +3,13 @@ import { Request, Response } from "express";
 import { AppError, CatchError } from "../../../utils/errorhandler";
 import Subcategory from "../../subcategoy/model/subcat.model";
 import { body, ParamsIds } from "../../../interfaces/Queryinterfaces";
+import { IProduct, ISubCategory } from "../../../interfaces/dbinterfaces";
 
 export const productController = {
   getProducts: CatchError(async (req: Request, res: Response) => {
-    const products = await Product.find({ deleted: false }).populate({
+    const products: IProduct[] = await Product.find({
+      deleted: false,
+    }).populate({
       path: "Subcategory",
       select: "name image user category",
     });
@@ -19,7 +22,7 @@ export const productController = {
   getProduct: CatchError(async (req: Request, res: Response) => {
     const { product } = req.query;
 
-    const products = await Product.find({
+    const products: IProduct[] = await Product.find({
       name: product,
       deleted: false,
     }).populate({
@@ -39,7 +42,7 @@ export const productController = {
       const { name, description, image, price, quantity } = req.body;
       const { subCategoryId } = req.params;
 
-      const subCategory = await Subcategory.findOne({
+      const subCategory: ISubCategory | null = await Subcategory.findOne({
         _id: subCategoryId,
         deleted: false,
       });
@@ -57,7 +60,7 @@ export const productController = {
       });
 
       if (existingProduct) {
-        const updatedProduct = await Product.findOneAndUpdate(
+        const updatedProduct: IProduct | null = await Product.findOneAndUpdate(
           { name },
           {
             $inc: { quantity: quantity },
@@ -70,7 +73,7 @@ export const productController = {
           product: updatedProduct,
         });
       }
-      const newProduct = await Product.create({
+      const newProduct: IProduct | null = await Product.create({
         name,
         description,
         image,
@@ -92,9 +95,12 @@ export const productController = {
       const { productId, subCategoryId } = req.params;
       const { name, description, image, price, quantity } = req.body;
 
-      const subCategory = await Subcategory.findById(subCategoryId, {
-        deleted: false,
-      });
+      const subCategory: ISubCategory | null = await Subcategory.findById(
+        subCategoryId,
+        {
+          deleted: false,
+        }
+      );
 
       if (!subCategory) throw new AppError("Product not found", 404);
 
@@ -108,7 +114,7 @@ export const productController = {
       if ((product.created_by?.toString() as string) !== req.user.id)
         throw new AppError("Unauthorized", 401);
 
-      const updatedProduct = await Product.findByIdAndUpdate(
+      const updatedProduct: IProduct | null = await Product.findByIdAndUpdate(
         productId,
         { name, description, image, price, quantity, modifed_by: req.user.id },
         {
@@ -128,7 +134,7 @@ export const productController = {
   deactiveProduct: CatchError(async (req: Request, res: Response) => {
     const { productId } = req.params;
 
-    const product = await Product.findOne({
+    const product: IProduct | null = await Product.findOne({
       _id: productId,
       deleted: false,
     });
@@ -142,7 +148,7 @@ export const productController = {
     ) {
       throw new AppError("Unauthorized", 401);
     }
-    const deletedProduct = await Product.findByIdAndUpdate(
+    const deletedProduct: IProduct | null = await Product.findByIdAndUpdate(
       productId,
       {
         deleted: true,
@@ -165,7 +171,7 @@ export const productController = {
   reactiveProduct: CatchError(async (req: Request, res: Response) => {
     const { productId } = req.params;
 
-    const product = await Product.findOne({
+    const product: IProduct | null = await Product.findOne({
       _id: productId,
       deleted: true,
     });
@@ -179,7 +185,7 @@ export const productController = {
     ) {
       throw new AppError("Unauthorized", 401);
     }
-    const reactiveProduct = await Product.findByIdAndUpdate(
+    const reactiveProduct: IProduct | null = await Product.findByIdAndUpdate(
       productId,
       {
         deleted: false,
@@ -204,7 +210,7 @@ export const productController = {
 
     if (!req.user) throw new AppError("Unauthorized", 401);
 
-    const findProduct = await Product.findOne({
+    const findProduct: IProduct | null = await Product.findOne({
       _id: productId,
       deleted: false,
     });

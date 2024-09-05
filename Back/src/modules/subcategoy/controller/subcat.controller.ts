@@ -7,10 +7,13 @@ import {
   subCatQuery,
 } from "../../../interfaces/Queryinterfaces";
 import Category from "../../category/model/category.model";
+import { ISubCategory } from "../../../interfaces/dbinterfaces";
 
 export const subcategoryController = {
   subCategories: CatchError(async (req: Request, res: Response) => {
-    const subCategories = await Subcategory.find({ deleted: false });
+    const subCategories: ISubCategory[] = await Subcategory.find({
+      deleted: false,
+    });
     if (!subCategories) throw new AppError("Subcategories not found", 404);
     res.status(200).json(subCategories);
   }),
@@ -19,7 +22,7 @@ export const subcategoryController = {
     async (req: Request<subCategoriesId, {}, {}>, res: Response) => {
       const { subcategoryId } = req.params;
 
-      const subCategory = await Subcategory.findOne({
+      const subCategory: ISubCategory | null = await Subcategory.findOne({
         _id: subcategoryId,
         deleted: false,
       });
@@ -37,14 +40,14 @@ export const subcategoryController = {
 
       if (!category_name) throw new AppError("Category not found", 404);
 
-      const findSub = await Subcategory.findOne({ name });
+      const findSub: ISubCategory | null = await Subcategory.findOne({ name });
       if (findSub) throw new AppError("Subcategory already exists", 400);
 
       const findCategory = await Category.findOne({ name: category_name });
 
       if (!findCategory) throw new AppError("Category not found", 404);
 
-      const newSubCategory = await Subcategory.create({
+      const newSubCategory: ISubCategory | null = await Subcategory.create({
         name,
         description,
         image,
@@ -66,19 +69,20 @@ export const subcategoryController = {
       const { subcategoryId } = req.params;
       const { name, description, image } = req.body;
 
-      const findSub = await Subcategory.findOne({ name });
+      const findSub: ISubCategory | null = await Subcategory.findOne({ name });
       if (findSub)
         throw new AppError("select different name, already exists", 404);
 
       if (!req.user) throw new AppError("Unauthorized", 401);
 
-      const subcategory = await Subcategory.findByIdAndUpdate(
-        subcategoryId,
-        { name, description, image, modifed_by: req.user.id },
-        {
-          new: true,
-        }
-      );
+      const subcategory: ISubCategory | null =
+        await Subcategory.findByIdAndUpdate(
+          subcategoryId,
+          { name, description, image, modifed_by: req.user.id },
+          {
+            new: true,
+          }
+        );
 
       if (!subcategory) throw new AppError("Can't update Subcategory", 400);
 
@@ -94,11 +98,12 @@ export const subcategoryController = {
 
     if (!req.user) throw new AppError("Unauthorized", 401);
 
-    const subcategory = await Subcategory.findByIdAndUpdate(
-      { _id: subcategoryId },
-      { modifed_by: req.user.id, deleted: true, deletedAt: new Date() },
-      { new: true }
-    );
+    const subcategory: ISubCategory | null =
+      await Subcategory.findByIdAndUpdate(
+        { _id: subcategoryId },
+        { modifed_by: req.user.id, deleted: true, deletedAt: new Date() },
+        { new: true }
+      );
 
     if (!subcategory) throw new AppError("Can't delete Subcategory", 400);
 
@@ -112,15 +117,16 @@ export const subcategoryController = {
 
     if (!req.user) throw new AppError("Unauthorized", 401);
 
-    const findSubCate = await Subcategory.findOne({
+    const findSubCate: ISubCategory | null = await Subcategory.findOne({
       _id: subcategoryId,
       deleted: false,
     });
 
     if (!findSubCate) throw new AppError("Sub-Category Not found", 404);
-    const subcategory = await Subcategory.findByIdAndDelete({
-      _id: subcategoryId,
-    });
+    const subcategory: ISubCategory | null =
+      await Subcategory.findByIdAndDelete({
+        _id: subcategoryId,
+      });
 
     if (!subcategory) throw new AppError("Can't delete Subcategory", 400);
 
