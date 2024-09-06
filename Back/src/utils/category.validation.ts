@@ -1,6 +1,6 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import { RequestHandler } from "express";
 
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import validatorMiddleware from "../middlewares/validator.middleware";
 
 export const createCategoryValidation: RequestHandler[] = [
@@ -32,5 +32,19 @@ export const updateCategoryValidation: RequestHandler[] = [
     .withMessage("Description is required")
     .trim()
     .escape(),
+  param("categoryId")
+    .notEmpty()
+    .withMessage("Product ID is required")
+    .isMongoId()
+    .withMessage("Invalid category id"),
+  validatorMiddleware,
+];
+
+export const paramValidation: RequestHandler[] = [
+  param("categoryId")
+    .notEmpty()
+    .withMessage("Product ID is required")
+    .isMongoId()
+    .withMessage("Invalid category id"),
   validatorMiddleware,
 ];
