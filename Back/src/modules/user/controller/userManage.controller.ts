@@ -29,7 +29,7 @@ export const userAuthController = {
         password,
         Number(process.env.SECRET_ROUNDS)
       );
-      console.log(hashedPassword);
+
       const newUser: IUser = await User.create({
         username,
         email,

@@ -214,13 +214,12 @@ export const adminAuthController = {
   ),
   disableUser: CatchError(
     async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
-      const { id } = req.params;
-      console.log(req.user);
+      const { userId } = req.params;
       if (!req.user) {
         throw new AppError("Unauthorized", 401);
       }
 
-      const user: IUser | null = await User.findById(id);
+      const user: IUser | null = await User.findById(userId);
 
       if (!user) throw new AppError("User not found", 404);
 
@@ -234,7 +233,7 @@ export const adminAuthController = {
       //   }
       // );
       const disableUser = await User.findByIdAndUpdate(
-        id,
+        userId,
         {
           deleted: true,
           deletedAt: new Date(),
@@ -247,6 +246,51 @@ export const adminAuthController = {
       return res.status(200).json({
         message: "User disabled successfully",
         user: disableUser,
+      });
+    }
+  ),
+  enableUser: CatchError(
+    async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
+      const { userId } = req.params;
+      if (!req.user) {
+        throw new AppError("Unauthorized", 401);
+      }
+
+      const user: IUser | null = await User.findById(userId);
+
+      if (!user) throw new AppError("User not found", 404);
+
+      const enableUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          deleted: false,
+          deletedAt: null,
+        },
+        {
+          new: true,
+        }
+      );
+
+      return res.status(200).json({
+        message: "User enabled successfully",
+        user: enableUser,
+      });
+    }
+  ),
+  getUser: CatchError(
+    async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
+      const { userId } = req.params;
+      if (!req.user) {
+        throw new AppError("Unauthorized", 401);
+      }
+
+      const user: IUser | null = await User.findById(userId).populate("cart");
+
+      if (!user) throw new AppError("User not found", 404);
+
+      return res.status(200).json({
+        message: "User fetched successfully",
+        user,
       });
     }
   ),

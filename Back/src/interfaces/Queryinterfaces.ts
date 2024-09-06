@@ -12,7 +12,8 @@ export interface userChangePasswordBody {
   newPassword: string;
 }
 export interface userParams {
-  id: string;
+  id?: string;
+  userId?: string;
 }
 export interface userLogin {
   userName: string;
@@ -27,16 +28,14 @@ export interface body {
   price?: number;
 }
 
-export interface subCatQuery {
-  category_name: string;
+export interface Query {
+  category_name?: string;
+  product?: string;
 }
 
 export interface ParamsIds {
   categoryId?: string;
-  subCategoryId?: string;
+  subcategoryId?: string;
   productId?: string;
   cartId?: string;
-}
-export interface subCategoriesId {
-  subcategoryId: string;
 }

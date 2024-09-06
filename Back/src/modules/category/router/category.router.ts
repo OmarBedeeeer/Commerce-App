@@ -10,7 +10,7 @@ const router = Router();
 router.get("/category-list", categoryController.getAll);
 
 router.get(
-  "/category-list/:id",
+  "/category-list/:categoryId",
   paramValidation,
   categoryController.getCategory
 );

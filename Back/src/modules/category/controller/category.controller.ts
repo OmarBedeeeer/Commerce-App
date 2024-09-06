@@ -10,17 +10,19 @@ export const categoryController = {
     res.send(categories);
   }),
 
-  getCategory: CatchError(async (req: Request, res: Response) => {
-    const { id } = req.params;
+  getCategory: CatchError(
+    async (req: Request<ParamsIds, {}, {}>, res: Response) => {
+      const { categoryId } = req.params;
 
-    const category: ICategory | null = await Category.findOne({
-      _id: id,
-      deleted: false,
-    });
+      const category: ICategory | null = await Category.findOne({
+        _id: categoryId,
+        deleted: false,
+      });
 
-    if (!category) throw new AppError("Category not found", 404);
-    res.status(200).json(category);
-  }),
+      if (!category) throw new AppError("Category not found", 404);
+      res.status(200).json(category);
+    }
+  ),
 
   createCategory: CatchError(
     async (req: Request<{}, {}, body>, res: Response) => {
@@ -65,21 +67,23 @@ export const categoryController = {
     }
   ),
 
-  deactiveCategory: CatchError(async (req: Request, res: Response) => {
-    const { categoryId } = req.params;
+  deactiveCategory: CatchError(
+    async (req: Request<ParamsIds, {}, {}>, res: Response) => {
+      const { categoryId } = req.params;
 
-    const category: ICategory | null = await Category.findByIdAndUpdate(
-      { _id: categoryId },
-      { deleted: true, deletedAt: new Date() },
-      { new: true }
-    );
-    if (!category) throw new AppError("Can't delete Category", 400);
+      const category: ICategory | null = await Category.findByIdAndUpdate(
+        { _id: categoryId },
+        { deleted: true, deletedAt: new Date() },
+        { new: true }
+      );
+      if (!category) throw new AppError("Can't delete Category", 400);
 
-    res.status(200).json({
-      message: "Category deleted successfully",
-      category,
-    });
-  }),
+      res.status(200).json({
+        message: "Category deleted successfully",
+        category,
+      });
+    }
+  ),
 
   getAllCategories: CatchError(async (req: Request, res: Response) => {
     const categories: ICategory[] = await Category.find();
@@ -87,32 +91,36 @@ export const categoryController = {
     res.status(200).send(categories);
   }),
 
-  restoreCategory: CatchError(async (req: Request, res: Response) => {
-    const { categoryId } = req.params;
+  restoreCategory: CatchError(
+    async (req: Request<ParamsIds, {}, {}>, res: Response) => {
+      const { categoryId } = req.params;
 
-    const category: ICategory | null = await Category.findByIdAndUpdate(
-      { _id: categoryId },
-      { deleted: false, deletedAt: null },
-      { new: true }
-    );
-    if (!category) throw new AppError("Can't restore Category", 400);
+      const category: ICategory | null = await Category.findByIdAndUpdate(
+        { _id: categoryId },
+        { deleted: false, deletedAt: null },
+        { new: true }
+      );
+      if (!category) throw new AppError("Can't restore Category", 400);
 
-    res.status(200).json({
-      message: "Category restored successfully",
-      category,
-    });
-  }),
-  deleteCategory: CatchError(async (req: Request, res: Response) => {
-    const { categoryId } = req.params;
+      res.status(200).json({
+        message: "Category restored successfully",
+        category,
+      });
+    }
+  ),
+  deleteCategory: CatchError(
+    async (req: Request<ParamsIds, {}, {}>, res: Response) => {
+      const { categoryId } = req.params;
 
-    const category: ICategory | null = await Category.findByIdAndDelete({
-      _id: categoryId,
-    });
-    if (!category) throw new AppError("Can't delete Category", 400);
+      const category: ICategory | null = await Category.findByIdAndDelete({
+        _id: categoryId,
+      });
+      if (!category) throw new AppError("Can't delete Category", 400);
 
-    res.status(200).json({
-      message: "Category deleted successfully",
-      category,
-    });
-  }),
+      res.status(200).json({
+        message: "Category deleted successfully",
+        category,
+      });
+    }
+  ),
 };

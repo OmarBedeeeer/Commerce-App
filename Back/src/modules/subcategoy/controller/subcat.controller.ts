@@ -1,11 +1,7 @@
 import Subcategory from "../model/subcat.model";
 import { Request, Response } from "express";
 import { AppError, CatchError } from "../../../utils/errorhandler";
-import {
-  body,
-  subCategoriesId,
-  subCatQuery,
-} from "../../../interfaces/Queryinterfaces";
+import { body, ParamsIds, Query } from "../../../interfaces/Queryinterfaces";
 import Category from "../../category/model/category.model";
 import { ISubCategory } from "../../../interfaces/dbinterfaces";
 
@@ -19,7 +15,7 @@ export const subcategoryController = {
   }),
 
   getSubCategory: CatchError(
-    async (req: Request<subCategoriesId, {}, {}>, res: Response) => {
+    async (req: Request<ParamsIds, {}, {}>, res: Response) => {
       const { subcategoryId } = req.params;
 
       const subCategory: ISubCategory | null = await Subcategory.findOne({
@@ -34,7 +30,7 @@ export const subcategoryController = {
   ),
 
   createSubCategory: CatchError(
-    async (req: Request<{}, {}, body, subCatQuery>, res: Response) => {
+    async (req: Request<{}, {}, body, Query>, res: Response) => {
       const { name, description, image } = req.body;
       const { category_name } = req.query;
 
@@ -65,7 +61,7 @@ export const subcategoryController = {
   ),
 
   updateSubCategory: CatchError(
-    async (req: Request<subCategoriesId, {}, body>, res: Response) => {
+    async (req: Request<ParamsIds, {}, body>, res: Response) => {
       const { subcategoryId } = req.params;
       const { name, description, image } = req.body;
 
@@ -93,46 +89,50 @@ export const subcategoryController = {
     }
   ),
 
-  deactiveSubCategory: CatchError(async (req: Request, res: Response) => {
-    const { subcategoryId } = req.params;
+  deactiveSubCategory: CatchError(
+    async (req: Request<ParamsIds, {}, {}>, res: Response) => {
+      const { subcategoryId } = req.params;
 
-    if (!req.user) throw new AppError("Unauthorized", 401);
+      if (!req.user) throw new AppError("Unauthorized", 401);
 
-    const subcategory: ISubCategory | null =
-      await Subcategory.findByIdAndUpdate(
-        { _id: subcategoryId },
-        { modifed_by: req.user.id, deleted: true, deletedAt: new Date() },
-        { new: true }
-      );
+      const subcategory: ISubCategory | null =
+        await Subcategory.findByIdAndUpdate(
+          { _id: subcategoryId },
+          { modifed_by: req.user.id, deleted: true, deletedAt: new Date() },
+          { new: true }
+        );
 
-    if (!subcategory) throw new AppError("Can't delete Subcategory", 400);
+      if (!subcategory) throw new AppError("Can't delete Subcategory", 400);
 
-    res.status(200).json({
-      message: "Subcategory deleted successfully",
-      subcategory,
-    });
-  }),
-  deleteSubCategory: CatchError(async (req: Request, res: Response) => {
-    const { subcategoryId } = req.params;
+      res.status(200).json({
+        message: "Subcategory deleted successfully",
+        subcategory,
+      });
+    }
+  ),
+  deleteSubCategory: CatchError(
+    async (req: Request<ParamsIds, {}, {}>, res: Response) => {
+      const { subcategoryId } = req.params;
 
-    if (!req.user) throw new AppError("Unauthorized", 401);
+      if (!req.user) throw new AppError("Unauthorized", 401);
 
-    const findSubCate: ISubCategory | null = await Subcategory.findOne({
-      _id: subcategoryId,
-      deleted: false,
-    });
-
-    if (!findSubCate) throw new AppError("Sub-Category Not found", 404);
-    const subcategory: ISubCategory | null =
-      await Subcategory.findByIdAndDelete({
+      const findSubCate: ISubCategory | null = await Subcategory.findOne({
         _id: subcategoryId,
+        deleted: false,
       });
 
-    if (!subcategory) throw new AppError("Can't delete Subcategory", 400);
+      if (!findSubCate) throw new AppError("Sub-Category Not found", 404);
+      const subcategory: ISubCategory | null =
+        await Subcategory.findByIdAndDelete({
+          _id: subcategoryId,
+        });
 
-    res.status(200).json({
-      message: "Subcategory deleted successfully",
-      subcategory,
-    });
-  }),
+      if (!subcategory) throw new AppError("Can't delete Subcategory", 400);
+
+      res.status(200).json({
+        message: "Subcategory deleted successfully",
+        subcategory,
+      });
+    }
+  ),
 };

@@ -5,6 +5,8 @@ const userSchema = new mongoose.Schema<IUser>(
     username: {
       type: String,
       required: true,
+      minlength: 3,
+      maxlength: 50,
       trim: true,
     },
     email: {
@@ -17,6 +19,8 @@ const userSchema = new mongoose.Schema<IUser>(
       type: String,
       required: true,
       trim: true,
+      minlength: 6,
+      maxlength: 12,
     },
     phoneNumber: {
       type: String,
