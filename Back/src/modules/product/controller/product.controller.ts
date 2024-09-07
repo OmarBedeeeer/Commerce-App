@@ -52,7 +52,7 @@ export const productController = {
 
   createProduct: CatchError(
     async (req: Request<ParamsIds, {}, body>, res: Response) => {
-      const { name, description, image, price, quantity } = req.body;
+      const { name, description, price, quantity } = req.body;
       const { subCategoryId } = req.params;
 
       const subCategory: ISubCategory | null = await Subcategory.findOne({
@@ -89,11 +89,13 @@ export const productController = {
       const newProduct: IProduct | null = await await Product.create({
         name,
         description,
-        image,
+        image: req.file,
         price,
         quantity,
         created_by: req.user.id,
         Subcategory: subCategoryId,
+
+        modifed_by: req.user.id,
       });
 
       return res.status(201).json({
