@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 
 import { body, param } from "express-validator";
-import validatorMiddleware from "../middlewares/validator.middleware";
+import validatorMiddleware from "../../middlewares/validator.middleware";
 
 export const createCategoryValidation: RequestHandler[] = [
   body("name")
@@ -21,13 +21,13 @@ export const createCategoryValidation: RequestHandler[] = [
 
 export const updateCategoryValidation: RequestHandler[] = [
   body("name")
-    .notEmpty()
-    .withMessage("Name is required")
+    .optional()
     .isLength({ min: 3, max: 50 })
     .withMessage("Name must be at least 3 characters long and less than 50")
     .trim()
     .escape(),
   body("description")
+    .optional()
     .isLength({ min: 10, max: 500 })
     .withMessage("Description is required")
     .trim()

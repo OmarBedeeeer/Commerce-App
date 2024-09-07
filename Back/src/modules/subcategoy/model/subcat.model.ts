@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { ISubCategory } from "../../../interfaces/dbinterfaces";
+import slugify from "slugify";
 
 const subcatSchema = new mongoose.Schema<ISubCategory>(
   {
@@ -19,6 +20,11 @@ const subcatSchema = new mongoose.Schema<ISubCategory>(
       maxlength: 500,
       minlength: 10,
       lowercase: true,
+    },
+    slug: {
+      type: String,
+      trim: true,
+      unique: true,
     },
     image: {
       type: String,
@@ -47,6 +53,11 @@ const subcatSchema = new mongoose.Schema<ISubCategory>(
     timestamps: true,
   }
 );
+
+subcatSchema.pre("save", function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
 
 const Subcategory = mongoose.model<ISubCategory>("Subcategory", subcatSchema);
 export default Subcategory;

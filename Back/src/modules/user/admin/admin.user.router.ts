@@ -6,9 +6,9 @@ import {
   createUserValidation,
   updateUserValidation,
   userParamControlValidation,
+  paramValidation,
   validateLogin,
-} from "../../../utils/user.validation";
-import { paramValidation } from "../../../utils/category.validation";
+} from "../../../utils/validation/user.validation";
 
 const router = Router();
 
@@ -34,7 +34,7 @@ router.put(
 );
 
 router.put(
-  "/:id/deactivate-user",
+  "/:userId/deactivate-user",
   authentecation,
   authorized("admin"),
   userParamControlValidation,
@@ -43,14 +43,6 @@ router.put(
 
 router.patch(
   "/:userId/enableUser",
-  authentecation,
-  authorized("admin"),
-  userParamControlValidation,
-  adminAuthController.enableUser
-);
-
-router.get(
-  "/:userId",
   authentecation,
   authorized("admin"),
   userParamControlValidation,

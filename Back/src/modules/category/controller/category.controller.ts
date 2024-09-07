@@ -3,9 +3,18 @@ import { NextFunction, Request, Response } from "express";
 import { AppError, CatchError } from "../../../utils/errorhandler";
 import { body, ParamsIds } from "../../../interfaces/Queryinterfaces";
 import { ICategory } from "../../../interfaces/dbinterfaces";
+import { ApiFeatures } from "../../../utils/api.features";
+
 export const categoryController = {
   getAll: CatchError(async (req: Request, res: Response) => {
-    const categories: ICategory[] = await Category.find({ deleted: false });
+    const apiProductFeatures = new ApiFeatures(
+      Category.find({ deleted: false }),
+      req.query
+    );
+    apiProductFeatures.filter().sort().paginate();
+
+    const categories: ICategory[] = await apiProductFeatures.query;
+
     if (!categories) throw new AppError("Categories not found", 404);
     res.send(categories);
   }),
@@ -86,7 +95,13 @@ export const categoryController = {
   ),
 
   getAllCategories: CatchError(async (req: Request, res: Response) => {
-    const categories: ICategory[] = await Category.find();
+    const apiProductFeatures = new ApiFeatures(
+      Category.find({ deleted: false }),
+      req.query
+    );
+    apiProductFeatures.filter().sort().paginate();
+
+    const categories: ICategory[] = await apiProductFeatures.query;
     if (!categories) throw new AppError("Categories not found", 404);
     res.status(200).send(categories);
   }),

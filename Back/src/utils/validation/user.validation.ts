@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 
 import { body, param, query } from "express-validator";
-import validatorMiddleware from "../middlewares/validator.middleware";
+import validatorMiddleware from "../../middlewares/validator.middleware";
 
 export const createUserValidation: RequestHandler[] = [
   body("username")
@@ -21,8 +21,8 @@ export const createUserValidation: RequestHandler[] = [
   body("password")
     .notEmpty()
     .withMessage("Password is required")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters long")
+    .isLength({ min: 6, max: 12 })
+    .withMessage("Password must be between 6 and 12 characters long")
     .trim()
     .escape(),
   body("phoneNumber")
@@ -35,14 +35,14 @@ export const createUserValidation: RequestHandler[] = [
   body("address")
     .notEmpty()
     .withMessage("Address is required")
-    .isLength({ min: 10, max: 500 })
+    .isLength({ min: 6, max: 500 })
     .withMessage(
       "Address must be at least 10 characters long and less than 500"
     )
     .trim()
     .escape(),
   body("role").isLength({ min: 0, max: 0 }).withMessage("Role isn't required"),
-  body("age").isNumeric().withMessage("Age must be a number").trim(),
+  body("age").optional().isNumeric().withMessage("Age must be a number").trim(),
   validatorMiddleware,
 ];
 
@@ -65,6 +65,7 @@ export const validateLogin = [
     .withMessage("Password must be at least 6 characters long and less than 12")
     .trim()
     .escape(),
+  validatorMiddleware,
 ];
 
 export const changePassValidation: RequestHandler[] = [
