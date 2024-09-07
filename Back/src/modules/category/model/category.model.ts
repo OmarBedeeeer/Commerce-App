@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { ICategory } from "../../../interfaces/dbinterfaces";
+import slugify from "slugify";
 
 const categorySchema = new mongoose.Schema<ICategory>(
   {
@@ -20,6 +21,11 @@ const categorySchema = new mongoose.Schema<ICategory>(
       minlength: 10,
       lowercase: true,
     },
+    slug: {
+      type: String,
+      lowercase: true,
+      unique: true,
+    },
     image: {
       type: String,
     },
@@ -39,5 +45,11 @@ const categorySchema = new mongoose.Schema<ICategory>(
     timestamps: true,
   }
 );
+
+categorySchema.pre("save", function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
 const Category = mongoose.model<ICategory>("Category", categorySchema);
 export default Category;

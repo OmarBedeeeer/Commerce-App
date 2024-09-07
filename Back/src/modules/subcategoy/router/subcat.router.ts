@@ -4,8 +4,8 @@ import { subcategoryController } from "../controller/subcat.controller";
 import {
   createSubCategoryValidation,
   updateSubCategoryValidation,
-} from "../../../utils/subcategory.validation";
-import { paramValidation } from "../../../utils/category.validation";
+  paramValidation,
+} from "../../../utils/validation/subcategory.validation";
 
 const router = Router();
 
@@ -17,7 +17,7 @@ router.get(
   subcategoryController.getSubCategory
 );
 router.post(
-  "/founder/",
+  "/founder",
   authentecation,
   authorized("admin"),
   createSubCategoryValidation,
@@ -38,6 +38,14 @@ router.patch(
   authorized("admin"),
   paramValidation,
   subcategoryController.deactiveSubCategory
+);
+
+router.patch(
+  "/founder/subcategories/:subcategoryId/reactive",
+  authentecation,
+  authorized("admin"),
+  paramValidation,
+  subcategoryController.reactiveSubCategory
 );
 
 router.delete(

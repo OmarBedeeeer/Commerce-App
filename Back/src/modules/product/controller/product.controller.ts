@@ -4,12 +4,23 @@ import { AppError, CatchError } from "../../../utils/errorhandler";
 import Subcategory from "../../subcategoy/model/subcat.model";
 import { body, ParamsIds, Query } from "../../../interfaces/Queryinterfaces";
 import { IProduct, ISubCategory } from "../../../interfaces/dbinterfaces";
+import { ApiFeatures } from "../../../utils/api.features";
 
 export const productController = {
   getProducts: CatchError(async (req: Request, res: Response) => {
-    const products: IProduct[] = await Product.find({
-      deleted: false,
-    }).populate({
+    const apiProductFeatures = new ApiFeatures(
+      Product.find({ deleted: false }),
+      req.query
+    );
+
+    apiProductFeatures
+      .filter()
+      .sort()
+      .search(["name", "description"])
+      .fields()
+      .productPaginate();
+
+    const products: IProduct[] = await apiProductFeatures.query.populate({
       path: "Subcategory",
       select: "name image user category",
     });
@@ -24,7 +35,7 @@ export const productController = {
       const { product } = req.query;
 
       const products: IProduct[] = await Product.find({
-        name: product,
+        slug: product,
         deleted: false,
       }).populate({
         path: "Subcategory",
@@ -42,10 +53,10 @@ export const productController = {
   createProduct: CatchError(
     async (req: Request<ParamsIds, {}, body>, res: Response) => {
       const { name, description, image, price, quantity } = req.body;
-      const { subcategoryId } = req.params;
+      const { subCategoryId } = req.params;
 
       const subCategory: ISubCategory | null = await Subcategory.findOne({
-        _id: subcategoryId,
+        _id: subCategoryId,
         deleted: false,
       });
 
@@ -53,7 +64,7 @@ export const productController = {
 
       if (!req.user) throw new AppError("Unauthorized", 401);
 
-      if (!quantity || quantity <= 0)
+      if (!quantity || quantity < 0)
         throw new AppError("Invalid quantity", 400);
 
       const existingProduct = await Product.findOne({
@@ -75,14 +86,14 @@ export const productController = {
           product: updatedProduct,
         });
       }
-      const newProduct: IProduct | null = await Product.create({
+      const newProduct: IProduct | null = await await Product.create({
         name,
         description,
         image,
         price,
         quantity,
         created_by: req.user.id,
-        subcategory: subcategoryId,
+        Subcategory: subCategoryId,
       });
 
       return res.status(201).json({
@@ -94,11 +105,11 @@ export const productController = {
 
   updateProduct: CatchError(
     async (req: Request<ParamsIds, {}, body>, res: Response) => {
-      const { productId, subcategoryId } = req.params;
+      const { productId, subCategoryId } = req.params;
       const { name, description, image, price, quantity } = req.body;
 
       const subCategory: ISubCategory | null = await Subcategory.findById(
-        subcategoryId,
+        subCategoryId,
         {
           deleted: false,
         }

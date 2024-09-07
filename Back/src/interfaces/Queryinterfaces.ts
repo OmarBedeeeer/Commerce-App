@@ -35,7 +35,7 @@ export interface Query {
 
 export interface ParamsIds {
   categoryId?: string;
-  subcategoryId?: string;
+  subCategoryId?: string;
   productId?: string;
   cartId?: string;
 }

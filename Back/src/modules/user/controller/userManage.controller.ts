@@ -255,7 +255,6 @@ export const userAuthController = {
 
       return res.status(200).json({
         message: "User deleted successfully",
-        deleteUser,
       });
     }
   ),

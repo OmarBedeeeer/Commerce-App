@@ -58,7 +58,6 @@ export const adminAuthController = {
       deleted: false,
       $or: [{ email: userName }, { phoneNumber: userName }],
     });
-
     // const cart = await cartModel.findOne({
     //   user: user?._id,
     //   deleted: false,
@@ -208,7 +207,6 @@ export const adminAuthController = {
 
       return res.status(200).json({
         message: "User deleted successfully",
-        user: deleteUser,
       });
     }
   ),

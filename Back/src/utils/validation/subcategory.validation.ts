@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 
 import { body, param, query } from "express-validator";
-import validatorMiddleware from "../middlewares/validator.middleware";
+import validatorMiddleware from "../../middlewares/validator.middleware";
 
 export const createSubCategoryValidation: RequestHandler[] = [
   body("name")
