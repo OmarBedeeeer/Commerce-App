@@ -7,6 +7,7 @@ import {
   productParamsValidation,
   updateProductValidation,
 } from "../../../utils/validation/product.validation";
+import { uploadMiddleware } from "../../../middlewares/multer";
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.post(
   authentecation,
   authorized("admin"),
   createProductValidation,
+  uploadMiddleware,
   productController.createProduct
 );
 
