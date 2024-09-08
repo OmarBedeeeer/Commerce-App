@@ -5,6 +5,7 @@ type Payload = {
   phoneNumber: string;
   address: string;
   age: number;
+  isVerified: boolean;
 };
 
 declare namespace Express {

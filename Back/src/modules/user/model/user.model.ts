@@ -42,6 +42,10 @@ const userSchema = new mongoose.Schema<IUser>(
       type: Number,
       trim: true,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
     deleted: { type: Boolean, default: false },
     deletedAt: { type: Date },
   },

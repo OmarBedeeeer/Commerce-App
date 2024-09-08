@@ -12,13 +12,16 @@ import { uploadMiddleware } from "../../../middlewares/multer";
 const router = Router();
 
 router.get("/", productController.getProducts);
-router.get("/selected", getSingleProdVali, productController.getProduct);
+router.get(
+  "/selected", //getSingleProdVali,
+  productController.getProduct
+);
 
 router.post(
   "/:subCategoryId/create-product",
   authentecation,
   authorized("admin"),
-  createProductValidation,
+  // createProductValidation,
   uploadMiddleware,
   productController.createProduct
 );
@@ -27,28 +30,28 @@ router.patch(
   "/:subCategoryId/:productId/update-product",
   authentecation,
   authorized("admin"),
-  updateProductValidation,
+  // updateProductValidation,
   productController.updateProduct
 );
 
 router.patch(
   "/:subCategoryId/:productId/deactive-product",
   authentecation,
-  productParamsValidation,
+  // productParamsValidation,
   productController.deactiveProduct
 );
 
 router.patch(
   "/:subCategoryId/:productId/reactive-product",
   authentecation,
-  productParamsValidation,
+  // productParamsValidation,
   productController.reactiveProduct
 );
 
 router.delete(
   "/:subCategoryId/:productId/delete-product",
   authentecation,
-  productParamsValidation,
+  // productParamsValidation,
   productController.deleteProduct
 );
 
