@@ -1,26 +1,6 @@
 import { Query } from "mongoose";
 import { apiFeatures } from "../interfaces/features.interface";
 
-// class features {
-//   constructor(
-//     public mongooseQuery: Query<any[], any>,
-//     private queryString: apiFeatures
-//   ) {}
-//   filter() {}
-//   sort() {
-//     if (this.queryString.sort) {
-//       const sortBy = this.queryString.sort.split(",").join(" ");
-//       this.mongooseQuery = this.mongooseQuery.sort(sortBy);
-//     } else {
-//       this.mongooseQuery = this.mongooseQuery.sort("-createdAt");
-//     }
-//     return this;
-//   }
-//   limit() {}
-//   search() {}
-//   pagination() {}
-// }
-
 export class ApiFeatures {
   constructor(public query: Query<any[], any>, private reqQuery: apiFeatures) {}
 
