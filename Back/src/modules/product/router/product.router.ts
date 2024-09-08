@@ -13,7 +13,6 @@ const router = Router();
 
 router.get("/", productController.getProducts);
 router.get(
-  "/selected", // getSingleProdVali,
   productController.getProduct
 );
 

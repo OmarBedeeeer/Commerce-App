@@ -14,11 +14,6 @@ router.post(
   "/register", //createUserValidation,
   userAuthController.sginUp
 );
-router.post(
-  "/login",
-  //  validateLogin,
-  userAuthController.LogIn
-);
 router.patch(
   "/:id/change-password",
   authentecation,

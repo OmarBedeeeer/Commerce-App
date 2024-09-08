@@ -17,7 +17,10 @@ router.post(
   // createUserValidation,
   adminAuthController.sginUp
 );
-router.post("/admin-login", validateLogin, adminAuthController.LogIn);
+router.post(
+  "/admin-login", // validateLogin,
+  adminAuthController.LogIn
+);
 router.patch(
   "/:id/admin-change-password",
   authentecation,
