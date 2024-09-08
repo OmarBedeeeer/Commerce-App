@@ -29,7 +29,7 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
     });
   } else {
     const message =
-      process.env.ENV === "production"
+      process.env.ENV === "Production"
         ? "Internal Server Error"
         : error.message;
 
