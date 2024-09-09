@@ -36,6 +36,7 @@ export interface IUser extends Document {
   role?: string;
   isVerified?: boolean;
   age?: number;
+  isVerified?: boolean;
   deleted?: boolean;
   deletedAt?: Date | null;
 }

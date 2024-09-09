@@ -1,6 +1,7 @@
-import jwt, { VerifyErrors } from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { AppError } from "../../../utils/errorhandler";
 import { Response, Request, NextFunction } from "express";
+import { BlobOptions } from "buffer";
 
 interface DecodedToken {
   id: string;
@@ -10,6 +11,7 @@ interface DecodedToken {
   username: string;
   phoneNumber: string;
   address: string;
+  isVerified: Boolean;
 }
 
 export const authentecation = async (

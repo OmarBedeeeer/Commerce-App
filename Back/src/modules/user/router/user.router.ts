@@ -22,6 +22,7 @@ router.post(
 router.get("/verify/:token", userAuthController.verfyEmail);
 router.post("/reset", userAuthController.forgetPassword);
 router.get("/reset/:token", userAuthController.resetPassword);
+
 router.patch(
   "/:id/change-password",
   authentecation,
