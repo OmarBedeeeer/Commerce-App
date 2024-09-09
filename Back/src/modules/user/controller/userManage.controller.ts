@@ -13,7 +13,6 @@ import {
 import { IUser } from "../../../interfaces/dbinterfaces";
 import sendmail from "../../../utils/nodemailer";
 
-
 export const userAuthController = {
   sginUp: CatchError(
     async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
@@ -85,10 +84,8 @@ export const userAuthController = {
 
     if (updatedUser) return res.status(200).json({ message: "Email verified" });
 
-
     throw new AppError("Something went wrong", 500);
   }),
-
 
   forgetPassword: CatchError(async (req, res) => {
     const { email } = req.body;
@@ -182,49 +179,6 @@ export const userAuthController = {
       message: "User logged in successfully",
       token,
     });
-  }),
-
-  forgetPassword: CatchError(async (req, res) => {
-    const { email } = req.body;
-    const user = await User.findOne(email);
-
-    if (!user) throw new AppError("User not found", 404);
-
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
-      expiresIn: "10min",
-    });
-    const forgetPasswordLink = `${process.env.BACKEND_URL}/users/reset/${token}`;
-    const sendmailer = await sendmail({
-      to: email,
-      subject: "Reset your password",
-      text: `Please copy the link to Your URL incase it is not Clickble :
-       ${forgetPasswordLink}`,
-    });
-
-    res.status(200).json({ message: "Email sent successfully" });
-  }),
-
-  resetPassword: CatchError(async (req, res) => {
-    const { token } = req.params;
-
-    const { email } = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
-
-    const { newPassword } = req.body;
-
-    const user = await User.findOne(email);
-
-    if (!user) throw new AppError("User not found", 404);
-
-    const hashedPassword = await bcrypt.hash(
-      newPassword,
-      process.env.SECRET_ROUNDS
-    );
-
-    user.password = hashedPassword;
-
-    await user.save();
-
-    res.status(200).json({ message: "Password reset successfully" });
   }),
 
   changePassword: CatchError(
