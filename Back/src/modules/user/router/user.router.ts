@@ -14,6 +14,15 @@ router.post(
   "/register", //createUserValidation,
   userAuthController.sginUp
 );
+router.post(
+  "/login",
+  //  validateLogin,
+  userAuthController.LogIn
+);
+router.get("/verify/:token", userAuthController.verfyEmail);
+router.post("/reset", userAuthController.forgetPassword);
+router.get("/reset/:token", userAuthController.resetPassword);
+
 router.patch(
   "/:id/change-password",
   authentecation,
