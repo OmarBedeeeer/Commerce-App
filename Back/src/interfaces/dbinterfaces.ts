@@ -34,6 +34,7 @@ export interface IUser extends Document {
   phoneNumber: string;
   address: string;
   role?: string;
+  isVerified?: boolean;
   age?: number;
   deleted?: boolean;
   deletedAt?: Date | null;

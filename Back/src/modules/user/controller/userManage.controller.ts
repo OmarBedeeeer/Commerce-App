@@ -1,7 +1,7 @@
 import User from "../model/user.model";
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 // import cartModel from "../../cart/model/cart.model";
 import { AppError, CatchError } from "../../../utils/errorhandler";
 import {
@@ -11,6 +11,7 @@ import {
   userLogin,
 } from "../../../interfaces/Queryinterfaces";
 import { IUser } from "../../../interfaces/dbinterfaces";
+import sendmail from "../../../utils/nodemailer";
 
 export const userAuthController = {
   sginUp: CatchError(
@@ -30,6 +31,10 @@ export const userAuthController = {
         Number(process.env.SECRET_ROUNDS)
       );
 
+      const token: string = jwt.sign({ email }, process.env.JWT_SECRET, {
+        expiresIn: "10min",
+      });
+
       const newUser: IUser = await User.create({
         username,
         email,
@@ -41,11 +46,20 @@ export const userAuthController = {
 
       if (!newUser) throw new AppError("Something went wrong", 400);
 
+      const createLink = `${process.env.BACKEND_URL}/users/verify/${token}`;
+
       // const newCart = await cartModel.create({
       //   user: newUser._id,
       //   products: [],
       //   total: 0,
       // });
+
+      const message = await sendmail({
+        to: email,
+        subject: "Verify your account",
+        text: `Please copy the link to Your URL incase it is not Clickble :
+         ${createLink}`,
+      });
 
       return res.status(201).json({
         message: "User created successfully",
@@ -53,6 +67,71 @@ export const userAuthController = {
       });
     }
   ),
+
+  verfyEmail: CatchError(async (req, res) => {
+    const { token } = req.params;
+
+    const { email } = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
+
+    const user = await User.findOne(email);
+
+    if (!user) throw new AppError("User not found", 404);
+
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { isVerified: true },
+      { new: true }
+    );
+
+    if (updatedUser) return res.status(200).json({ message: "Email verified" });
+
+    throw new AppError("Something went wrong", 500);
+  }),
+
+  forgetPassword: CatchError(async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne(email);
+
+    if (!user) throw new AppError("User not found", 404);
+
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+      expiresIn: "10min",
+    });
+    const forgetPasswordLink = `${process.env.BACKEND_URL}/users/reset/${token}`;
+    const sendmailer = await sendmail({
+      to: email,
+      subject: "Reset your password",
+      text: `Please copy the link to Your URL incase it is not Clickble :
+       ${forgetPasswordLink}`,
+    });
+
+    res.status(200).json({ message: "Email sent successfully" });
+  }),
+
+  resetPassword: CatchError(async (req, res) => {
+    const { token } = req.params;
+
+    const { email } = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
+
+    const { newPassword } = req.body;
+
+    const user = await User.findOne(email);
+
+    if (!user) throw new AppError("User not found", 404);
+
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      process.env.SECRET_ROUNDS
+    );
+
+    const updatePassword = await User.findOneAndUpdate(
+      { email },
+      { password: hashedPassword },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Password reset successfully" });
+  }),
 
   LogIn: CatchError(async (req: Request<{}, {}, userLogin>, res: Response) => {
     const { userName, password } = req.body;
