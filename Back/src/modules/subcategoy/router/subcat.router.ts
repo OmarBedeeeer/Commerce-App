@@ -12,7 +12,7 @@ const router = Router();
 router.get("/subcategories", subcategoryController.subCategories);
 
 router.get(
-  "/subcategories/:subcategoryId",
+  "/subcategories/:subCategoryId",
   // paramValidation,
   subcategoryController.getSubCategory
 );
@@ -25,7 +25,7 @@ router.post(
 );
 
 router.patch(
-  "/founder/subcategories/:subcategoryId",
+  "/founder/subcategories/:subCategoryId",
   authentecation,
   authorized("admin"),
   // updateSubCategoryValidation,
@@ -41,7 +41,7 @@ router.patch(
 );
 
 router.patch(
-  "/founder/subcategories/:subcategoryId/reactive",
+  "/founder/subcategories/:subCategoryId/reactive",
   authentecation,
   authorized("admin"),
   // paramValidation,
@@ -49,7 +49,7 @@ router.patch(
 );
 
 router.delete(
-  "/founder/subcategories/:subcategoryId/delete-subcategory",
+  "/founder/subcategories/:subCategoryId/delete-subcategory",
   authentecation,
   authorized("admin"),
   // paramValidation,
