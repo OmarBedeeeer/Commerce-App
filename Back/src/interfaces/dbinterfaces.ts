@@ -2,11 +2,16 @@ import { Document, Types } from "mongoose";
 export interface ICategory extends Document {
   name: string;
   description: string;
-  image: string;
+  image: Types.ObjectId | IImage;
   slug: string;
   deleted?: boolean;
   deletedAt?: Date | null;
   createdBy: IUser;
+}
+
+export interface IImage extends Document {
+  name: string;
+  path: string;
 }
 
 export interface ISubCategory extends ICategory {
@@ -34,7 +39,6 @@ export interface IUser extends Document {
   phoneNumber: string;
   address: string;
   role?: string;
-  isVerified?: boolean;
   age?: number;
   isVerified?: boolean;
   deleted?: boolean;

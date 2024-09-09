@@ -11,7 +11,16 @@ import { AppError } from "./utils/errorhandler";
 const app: Application = express();
 dotenv.config();
 
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
+
 app.use(express.json());
+app.use(express.static("upload"));
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/founder", adminRouter);
 app.use("/api/v1/category", categoryRouter);

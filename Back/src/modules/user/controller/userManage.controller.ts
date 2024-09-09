@@ -164,10 +164,7 @@ export const userAuthController = {
     const token: string = jwt.sign(
       {
         id: user._id,
-        email: user.email,
         role: user.role,
-        phoneNumber: user.phoneNumber,
-        address: user.address,
       },
       process.env.JWT_SECRET,
       {
