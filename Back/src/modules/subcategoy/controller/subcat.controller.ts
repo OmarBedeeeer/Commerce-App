@@ -3,8 +3,9 @@ import { Request, Response } from "express";
 import { AppError, CatchError } from "../../../utils/errorhandler";
 import { body, ParamsIds, Query } from "../../../interfaces/Queryinterfaces";
 import Category from "../../category/model/category.model";
-import { ISubCategory } from "../../../interfaces/dbinterfaces";
+import { IProduct, ISubCategory } from "../../../interfaces/dbinterfaces";
 import { ApiFeatures } from "../../../utils/api.features";
+import Product from "../../product/model/product.model";
 
 export const subcategoryController = {
   subCategories: CatchError(async (req: Request, res: Response) => {
@@ -101,20 +102,54 @@ export const subcategoryController = {
 
       if (!req.user) throw new AppError("Unauthorized", 401);
 
-      const subcategory: ISubCategory | null =
-        await Subcategory.findByIdAndUpdate(
-          { _id: subCategoryId },
-          { modifed_by: req.user.id, deleted: true, deletedAt: new Date() },
-          { new: true }
-        );
+      const findSubCate: ISubCategory | null = await Subcategory.findOne({
+        _id: subCategoryId,
+        deleted: false,
+      });
+
+      const allSubCateProducts: IProduct[] | null = await Product.find({
+        Subcategory: subCategoryId,
+        deleted: false,
+      });
+
+      if (!findSubCate) throw new AppError("Sub-Category Not found", 404);
+      if (!allSubCateProducts) throw new AppError("Product Not found", 404);
+
+      await Promise.all(
+        allSubCateProducts.map(async (prod) => {
+          prod.deleted = true;
+          prod.deletedAt = new Date();
+          await prod.save();
+        })
+      );
+
+      const deleteSubCate = await Subcategory.updateOne(
+        {
+          _id: findSubCate?.id,
+        },
+        {
+          deleted: true,
+          deletedAt: new Date(),
+        },
+        {
+          new: true,
+        }
+      );
+
+      // const subcategory: ISubCategory | null =
+      await Subcategory.findByIdAndUpdate(
+        { _id: subCategoryId },
+        { modifed_by: req.user.id, deleted: true, deletedAt: new Date() },
+        { new: true }
+      );
 
       //TODO: deactive all product belong to this subcategory
 
-      if (!subcategory) throw new AppError("Can't delete Subcategory", 400);
+      if (!deleteSubCate) throw new AppError("Can't delete Subcategory", 400);
 
       res.status(200).json({
         message: "Subcategory deleted successfully",
-        subcategory,
+        deleteSubCate,
       });
     }
   ),

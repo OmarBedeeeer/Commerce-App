@@ -33,7 +33,7 @@ router.patch(
 );
 
 router.patch(
-  "/founder/subcategories/:subcategoryId/deactive",
+  "/founder/subcategories/:subCategoryId/deactive",
   authentecation,
   authorized("admin"),
   // paramValidation,
