@@ -27,7 +27,8 @@ const subcatSchema = new mongoose.Schema<ISubCategory>(
       unique: true,
     },
     image: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Image",
     },
     deleted: {
       type: Boolean,

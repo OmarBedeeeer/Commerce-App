@@ -7,21 +7,19 @@ import {
   productParamsValidation,
   updateProductValidation,
 } from "../../../utils/validation/product.validation";
-import { uploadMiddleware } from "../../../middlewares/multer";
+import getUploadMiddleware from "../../../middlewares/multer";
 
 const router = Router();
 
 router.get("/", productController.getProducts);
-router.get(
-  productController.getProduct
-);
+router.get("/selected", productController.getProduct);
 
 router.post(
   "/:subCategoryId/create-product",
   authentecation,
   authorized("admin"),
   // createProductValidation,
-  uploadMiddleware,
+  getUploadMiddleware("img"),
   productController.createProduct
 );
 
