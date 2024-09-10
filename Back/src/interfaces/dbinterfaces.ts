@@ -44,3 +44,10 @@ export interface IUser extends Document {
   deleted?: boolean;
   deletedAt?: Date | null;
 }
+export interface ICart extends Document {
+  user: Types.ObjectId | IUser;
+  products?: Types.ObjectId[] | IProduct[];
+  total?: number;
+  deleted?: boolean;
+  deletedAt?: Date | null;
+}

@@ -9,8 +9,8 @@ import {
   userLogin,
   userParams,
 } from "../../../interfaces/Queryinterfaces";
-import { IUser } from "../../../interfaces/dbinterfaces";
-// import cartModel from "../../cart/model/cart.model";
+import { ICart, IUser } from "../../../interfaces/dbinterfaces";
+import Cart from "../../../cart/cat.model";
 
 export const adminAuthController = {
   sginUp: CatchError(
@@ -40,11 +40,11 @@ export const adminAuthController = {
 
       if (!newUser) throw new AppError("Something went wrong", 400);
 
-      // const newCart = await cartModel.create({
-      //   user: newUser._id,
-      //   products: [],
-      //   total: 0,
-      // });
+      const newCart: ICart = await Cart.create({
+        user: newUser._id,
+        products: [],
+        total: 0,
+      });
       return res.status(201).json({
         message: "User created successfully",
         user: newUser,
@@ -58,17 +58,6 @@ export const adminAuthController = {
       deleted: false,
       $or: [{ email: userName }, { phoneNumber: userName }],
     });
-    // const cart = await cartModel.findOne({
-    //   user: user?._id,
-    //   deleted: false,
-    // });
-
-    // if (!cart) {
-    //   await cartModel.create({
-    //     user: user?._id,
-    //     products: [],
-    //   });
-    // }
 
     if (!user) {
       return res.status(404).json({
@@ -191,15 +180,15 @@ export const adminAuthController = {
 
       const deleteUser = await User.findByIdAndDelete(id);
 
-      // const cart = await cartModel.findOneAndUpdate(
-      //   {
-      //     user: id,
-      //   },
-      //   {
-      //     deleted: true,
-      //     deletedAt: new Date(),
-      //   }
-      // );
+      const cart: ICart | null = await Cart.findOneAndUpdate(
+        {
+          user: id,
+        },
+        {
+          deleted: true,
+          deletedAt: new Date(),
+        }
+      );
 
       return res.status(200).json({
         message: "User deleted successfully",
@@ -217,15 +206,15 @@ export const adminAuthController = {
 
       if (!user) throw new AppError("User not found", 404);
 
-      // const cart = await cartModel.findOneAndUpdate(
-      //   {
-      //     user: id,
-      //   },
-      //   {
-      //     deleted: true,
-      //     deletedAt: new Date(),
-      //   }
-      // );
+      const cart: ICart | null = await Cart.findOneAndUpdate(
+        {
+          user: user.id,
+        },
+        {
+          deleted: true,
+          deletedAt: new Date(),
+        }
+      );
       const disableUser = await User.findByIdAndUpdate(
         userId,
         {

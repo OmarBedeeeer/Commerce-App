@@ -2,7 +2,7 @@ import User from "../model/user.model";
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
-// import cartModel from "../../cart/model/cart.model";
+
 import { AppError, CatchError } from "../../../utils/errorhandler";
 import {
   UserRequestBody,
@@ -10,8 +10,9 @@ import {
   userParams,
   userLogin,
 } from "../../../interfaces/Queryinterfaces";
-import { IUser } from "../../../interfaces/dbinterfaces";
+import { ICart, IUser } from "../../../interfaces/dbinterfaces";
 import sendmail from "../../../utils/nodemailer";
+import Cart from "../../../cart/cat.model";
 
 export const userAuthController = {
   sginUp: CatchError(
@@ -48,11 +49,11 @@ export const userAuthController = {
 
       const createLink = `${process.env.BACKEND_URL}/users/verify/${token}`;
 
-      // const newCart = await cartModel.create({
-      //   user: newUser._id,
-      //   products: [],
-      //   total: 0,
-      // });
+      const newCart: ICart = await Cart.create({
+        user: newUser._id,
+        products: [],
+        total: 0,
+      });
 
       const message = await sendmail({
         to: email,
@@ -148,18 +149,6 @@ export const userAuthController = {
         message: "Invalid Password or Username",
       });
     }
-
-    // const cart = await cartModel.findOne({
-    //   user: user?._id,
-    //   deleted: false,
-    // });
-
-    // if (!cart) {
-    //   await cartModel.create({
-    //     user: user?._id,
-    //     products: [],
-    //   });
-    // }
 
     const token: string = jwt.sign(
       {
@@ -285,15 +274,15 @@ export const userAuthController = {
         }
       );
 
-      // const cart = await cartModel.findOneAndUpdate(
-      //   {
-      //     user: id,
-      //   },
-      //   {
-      //     deleted: true,
-      //     deletedAt: new Date(),
-      //   }
-      // );
+      const cart: ICart | null = await Cart.findOneAndUpdate(
+        {
+          user: id,
+        },
+        {
+          deleted: true,
+          deletedAt: new Date(),
+        }
+      );
 
       return res.status(200).json({
         message: "User deleted successfully",
@@ -319,15 +308,9 @@ export const userAuthController = {
 
       const deleteUser: IUser | null = await User.findByIdAndDelete(id);
 
-      // const cart = await cartModel.findOneAndUpdate(
-      //   {
-      //     user: id,
-      //   },
-      //   {
-      //     deleted: true,
-      //     deletedAt: new Date(),
-      //   }
-      // );
+      const cart: ICart | null = await Cart.findOneAndDelete({
+        user: id,
+      });
 
       return res.status(200).json({
         message: "User deleted successfully",
