@@ -12,7 +12,7 @@ import {
 } from "../../../interfaces/Queryinterfaces";
 import { ICart, IUser } from "../../../interfaces/dbinterfaces";
 import sendmail from "../../../utils/nodemailer";
-import Cart from "../../../cart/cat.model";
+import Cart from "../../cart/cat.model";
 
 export const userAuthController = {
   sginUp: CatchError(

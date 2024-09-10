@@ -10,7 +10,7 @@ import {
   userParams,
 } from "../../../interfaces/Queryinterfaces";
 import { ICart, IUser } from "../../../interfaces/dbinterfaces";
-import Cart from "../../../cart/cat.model";
+import Cart from "../../cart/cat.model";
 
 export const adminAuthController = {
   sginUp: CatchError(

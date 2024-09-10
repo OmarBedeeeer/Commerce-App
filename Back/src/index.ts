@@ -6,6 +6,7 @@ import subcategoryRouter from "./modules/subcategoy/router/subcat.router";
 import productRouter from "./modules/product/router/product.router";
 import userRouter from "./modules/user/router/user.router";
 import adminRouter from "./modules/user/admin/admin.user.router";
+import cartRouter from "./modules/product/router/prodOnCart.router";
 
 import { AppError } from "./utils/errorhandler";
 const app: Application = express();
@@ -26,6 +27,7 @@ app.use("/api/v1/founder", adminRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/category", subcategoryRouter);
 app.use("/api/v1/product", productRouter);
+app.use("/api/v1/cart", cartRouter);
 
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   res.status(404).send("Can't find this Page");

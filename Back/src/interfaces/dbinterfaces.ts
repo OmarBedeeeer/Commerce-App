@@ -46,7 +46,10 @@ export interface IUser extends Document {
 }
 export interface ICart extends Document {
   user: Types.ObjectId | IUser;
-  products?: Types.ObjectId[] | IProduct[];
+  products?: {
+    product: Types.ObjectId | IProduct;
+    quantity?: number;
+  }[];
   total?: number;
   deleted?: boolean;
   deletedAt?: Date | null;
