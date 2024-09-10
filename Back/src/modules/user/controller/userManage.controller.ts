@@ -176,15 +176,11 @@ export const userAuthController = {
 
       const { id } = req.params;
 
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
-
       const user: IUser | null = await User.findById(id);
 
       if (!user) throw new AppError("User not found", 400);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user.id != req.user?.id) throw new AppError("Unauthorized", 401);
 
       const isMatch: boolean = await bcrypt.compare(oldPassword, user.password);
 
@@ -253,15 +249,11 @@ export const userAuthController = {
     async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
       const { id } = req.params;
 
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
-
       const user: IUser | null = await User.findById(id);
 
       if (!user) throw new AppError("User not found", 404);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user.id != req.user?.id) throw new AppError("Unauthorized", 401);
 
       const deleteUser: IUser | null = await User.findByIdAndUpdate(
         id,
@@ -294,17 +286,13 @@ export const userAuthController = {
     async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
       const { id } = req.params;
 
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
-
       const user: IUser | null = await User.findById(id, {
         deleted: false,
       });
 
       if (!user) throw new AppError("User not found", 404);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user.id != req.user?.id) throw new AppError("Unauthorized", 401);
 
       const deleteUser: IUser | null = await User.findByIdAndDelete(id);
 
