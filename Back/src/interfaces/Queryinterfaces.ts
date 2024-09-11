@@ -41,4 +41,5 @@ export interface ParamsIds {
   productId?: string;
   cartId?: string;
   coupon?: string;
+  orderId?: string;
 }
