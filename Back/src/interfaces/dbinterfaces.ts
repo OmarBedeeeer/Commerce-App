@@ -24,6 +24,7 @@ export interface IProduct extends ICategory {
   Subcategory: Types.ObjectId | ISubCategory;
   created_by: Types.ObjectId | IUser;
   modifed_by: Types.ObjectId | IUser;
+  _id: Types.ObjectId;
   quantity: number;
   price: number;
   price_offer?: number;
@@ -43,4 +44,36 @@ export interface IUser extends Document {
   isVerified?: boolean;
   deleted?: boolean;
   deletedAt?: Date | null;
+}
+export interface ICart extends Document {
+  user: Types.ObjectId | IUser;
+  products?: {
+    product: Types.ObjectId | IProduct;
+    quantity?: number;
+  }[];
+  total?: number;
+  deleted?: boolean;
+  deletedAt?: Date | null;
+}
+
+export interface ICoupon extends Document {
+  coupon: string;
+  discountType: "%" | "cost";
+  discountValue: number;
+  minCartValue: number;
+  maxDiscountValue?: number;
+  expiryDate: Date;
+  isActive: boolean;
+  usedCount: number;
+  deleted?: boolean;
+  deletedAt?: Date | null;
+  applyCoupon: (cartTotal: number) => number;
+}
+export interface IOrder extends Document {
+  user: Types.ObjectId | IUser;
+  products: Types.ObjectId[] | IProduct[];
+  total: number;
+  status: "pending" | "completed";
+  address: string;
+  orderDate: Date;
 }

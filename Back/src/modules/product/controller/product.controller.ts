@@ -110,15 +110,15 @@ export const productController = {
 
       // console.log(uploadResult);
 
-      const img = await Image.create({
-        name: req.file?.originalname,
-        path: req.file?.filename,
-      });
+      // const img = await Image.create({
+      //   name: req.file?.originalname,
+      //   path: req.file?.filename,
+      // });
 
       const newProduct: IProduct | null = await Product.create({
         name,
         description,
-        image: img,
+        // image: img,
         price,
         quantity,
         created_by: req.user.id,

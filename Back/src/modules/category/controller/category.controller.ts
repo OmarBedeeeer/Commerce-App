@@ -99,6 +99,7 @@ export const categoryController = {
           new: true,
         }
       );
+
       if (!findCategory) throw new AppError("Category Not found", 404);
 
       const deletedSubCategories: ISubCategory[] | null =
@@ -118,8 +119,11 @@ export const categoryController = {
       const subCategoryIds = deletedSubCategories.map((sub) => sub._id);
 
       await Product.updateMany(
-        { Subcategory: { $in: subCategoryIds }, deleted: false },
-        { deleted: true }
+        {
+          Subcategory: { $in: subCategoryIds },
+          deleted: false,
+        },
+        { deleted: true, deletedAt: new Date() }
       );
 
       res.status(200).json({
@@ -169,7 +173,7 @@ export const categoryController = {
       await Promise.all(
         deletedSubCategories.map(async (prod) => {
           prod.deleted = false;
-          prod.deletedAt = new Date();
+          prod.deletedAt = null;
           await prod.save();
         })
       );
@@ -178,7 +182,7 @@ export const categoryController = {
 
       await Product.updateMany(
         { Subcategory: { $in: subCategoryIds }, deleted: true },
-        { deleted: false }
+        { deleted: false, deletedAt: null }
       );
 
       res.status(200).json({
