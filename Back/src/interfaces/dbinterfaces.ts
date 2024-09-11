@@ -57,14 +57,13 @@ export interface ICart extends Document {
 }
 
 export interface ICoupon extends Document {
-  code: string;
+  coupon: string;
   discountType: "%" | "cost";
   discountValue: number;
   minCartValue: number;
   maxDiscountValue?: number;
   expiryDate: Date;
   isActive: boolean;
-  usageLimit: number;
   usedCount: number;
   deleted?: boolean;
   deletedAt?: Date | null;

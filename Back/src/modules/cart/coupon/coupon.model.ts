@@ -3,7 +3,7 @@ import { ICoupon } from "../../../interfaces/dbinterfaces";
 
 const couponSchema = new mongoose.Schema<ICoupon>(
   {
-    code: {
+    coupon: {
       type: String,
       required: true,
       unique: true,
@@ -34,10 +34,6 @@ const couponSchema = new mongoose.Schema<ICoupon>(
     isActive: {
       type: Boolean,
       default: true,
-    },
-    usageLimit: {
-      type: Number,
-      default: 1,
     },
     usedCount: {
       type: Number,

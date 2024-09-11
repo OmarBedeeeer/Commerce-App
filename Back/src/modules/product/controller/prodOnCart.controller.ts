@@ -1,6 +1,6 @@
 import Product from "../model/product.model";
 import { Request, Response } from "express";
-import Cart from "../../cart/cat.model";
+import Cart from "../../cart/cart.model";
 import { CatchError, AppError } from "../../../utils/errorhandler";
 import { IUser, ICart, IProduct } from "../../../interfaces/dbinterfaces";
 import User from "../../user/model/user.model";
@@ -152,11 +152,10 @@ export const prodOnCart = {
       if (!cart || cart.products?.length === 0) {
         throw new AppError("Cart is empty", 400);
       }
-      // TODO: Reduce products from the product schema
       let cartTotal = cart.total;
-      if (coupon) {
-        const couponData = await Coupon.findOne({ code: coupon });
 
+      if (coupon) {
+        const couponData = await Coupon.findOne({ coupon, isActive: true });
         if (!couponData || !couponData.isActive) {
           throw new AppError("Invalid or expired coupon", 400);
         }
@@ -173,15 +172,38 @@ export const prodOnCart = {
         couponData.usedCount += 1;
         await couponData.save();
       }
+
       const order = await Order.create({
         user: user._id,
         products: cart.products,
         total: cartTotal,
         address,
       });
+
       cart.products = [];
       cart.total = 0;
       await cart.save();
+
+      for (const cartItem of cart.products!) {
+        const productId = cartItem.product._id;
+        const quantityOrdered: number | undefined = cartItem.quantity;
+
+        const product = await Product.findById(productId);
+        if (!product) {
+          throw new AppError(`Product not found.`, 404);
+        }
+        if (product.quantity < quantityOrdered!) {
+          throw new AppError(
+            `Insufficient stock for product ${product.name}.`,
+            400
+          );
+        }
+
+        product.quantity -= quantityOrdered!;
+
+        await product.save();
+      }
+
       return res.status(200).json({
         message: "Order placed successfully",
         order,

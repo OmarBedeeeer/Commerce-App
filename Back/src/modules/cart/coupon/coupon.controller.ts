@@ -7,7 +7,7 @@ import { ParamsIds } from "../../../interfaces/Queryinterfaces";
 export const couponController = {
   createCoupon: CatchError(async (req: Request, res: Response) => {
     const {
-      code,
+      coupon,
       discountType,
       discountValue,
       minCartValue,
@@ -17,13 +17,13 @@ export const couponController = {
       usageLimit,
     } = req.body;
 
-    const existingCoupon: ICoupon | null = await Coupon.findOne({ code });
+    const existingCoupon: ICoupon | null = await Coupon.findOne({ coupon });
     if (existingCoupon) {
       throw new AppError("Coupon already exists", 400);
     }
 
-    const coupon = await Coupon.create({
-      code,
+    const createCoupon = await Coupon.create({
+      coupon,
       discountType,
       discountValue,
       minCartValue,
@@ -36,13 +36,13 @@ export const couponController = {
     res.status(201).json({
       success: true,
       message: "Coupon created successfully",
-      data: coupon,
+      data: createCoupon,
     });
   }),
 
   getCoupon: CatchError(async (req: Request<ParamsIds>, res: Response) => {
     const coupon: ICoupon | null = await Coupon.findOne({
-      code: req.params.code,
+      _id: req.params.coupon,
     });
     if (!coupon) throw new AppError("Coupon not found", 404);
 
@@ -61,9 +61,11 @@ export const couponController = {
   }),
 
   deleteCoupon: CatchError(async (req: Request<ParamsIds>, res: Response) => {
+    console.log(req.params.coupon);
     const coupon: ICoupon | null = await Coupon.findOneAndDelete({
-      code: req.params.code,
+      _id: req.params.coupon,
     });
+
     if (!coupon) throw new AppError("Coupon not found", 404);
 
     res.status(200).json({

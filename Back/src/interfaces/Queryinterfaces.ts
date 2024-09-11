@@ -40,5 +40,5 @@ export interface ParamsIds {
   subCategoryId?: string;
   productId?: string;
   cartId?: string;
-  code?: string;
+  coupon?: string;
 }

@@ -11,4 +11,25 @@ router.post(
   couponController.createCoupon
 );
 
+router.get(
+  "/list",
+  authentecation,
+  authorized("admin"),
+  couponController.getAllCoupons
+);
+
+router.get(
+  "/:coupon",
+  authentecation,
+  authorized("admin"),
+  couponController.getCoupon
+);
+
+router.delete(
+  "/:coupon",
+  authentecation,
+  authorized("admin"),
+  couponController.deleteCoupon
+);
+
 export default router;
