@@ -55,3 +55,26 @@ export interface ICart extends Document {
   deleted?: boolean;
   deletedAt?: Date | null;
 }
+
+export interface ICoupon extends Document {
+  code: string;
+  discountType: "%" | "cost";
+  discountValue: number;
+  minCartValue: number;
+  maxDiscountValue?: number;
+  expiryDate: Date;
+  isActive: boolean;
+  usageLimit: number;
+  usedCount: number;
+  deleted?: boolean;
+  deletedAt?: Date | null;
+  applyCoupon: (cartTotal: number) => number;
+}
+export interface IOrder extends Document {
+  user: Types.ObjectId | IUser;
+  products: Types.ObjectId[] | IProduct[];
+  total: number;
+  status: "pending" | "completed";
+  address: string;
+  orderDate: Date;
+}

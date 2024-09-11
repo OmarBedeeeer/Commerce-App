@@ -11,6 +11,8 @@ import {
   userParams,
 } from "../../../interfaces/Queryinterfaces";
 import mongoose from "mongoose";
+import Coupon from "../../cart/coupon/coupon.model";
+import Order from "../../cart/order/order.model";
 
 export const prodOnCart = {
   getProductsOnCart: CatchError(
@@ -126,6 +128,63 @@ export const prodOnCart = {
       res.status(200).json({
         status: "success",
         message: "Product removed from cart successfully.",
+      });
+    }
+  ),
+  confirmOrder: CatchError(
+    async (req: Request<userParams, {}, body, Query>, res: Response) => {
+      const { userId } = req.params;
+      const { coupon, address } = req.body;
+      const user: IUser | null = await User.findById({
+        _id: req.user?.id,
+      });
+      if (!user) throw new AppError("User not found", 404);
+      const cart: ICart | null = await Cart.findOne({
+        user: user._id,
+      })
+        .select("products total")
+        .populate({
+          path: "products.product",
+          model: "Product",
+          select: "name price description",
+        });
+
+      if (!cart || cart.products?.length === 0) {
+        throw new AppError("Cart is empty", 400);
+      }
+      // TODO: Reduce products from the product schema
+      let cartTotal = cart.total;
+      if (coupon) {
+        const couponData = await Coupon.findOne({ code: coupon });
+
+        if (!couponData || !couponData.isActive) {
+          throw new AppError("Invalid or expired coupon", 400);
+        }
+
+        if (cartTotal! < couponData.minCartValue!) {
+          throw new AppError(
+            `Cart total must be at least ${couponData.minCartValue} to apply the coupon`,
+            400
+          );
+        }
+
+        cartTotal = couponData.applyCoupon(cartTotal!);
+
+        couponData.usedCount += 1;
+        await couponData.save();
+      }
+      const order = await Order.create({
+        user: user._id,
+        products: cart.products,
+        total: cartTotal,
+        address,
+      });
+      cart.products = [];
+      cart.total = 0;
+      await cart.save();
+      return res.status(200).json({
+        message: "Order placed successfully",
+        order,
       });
     }
   ),
