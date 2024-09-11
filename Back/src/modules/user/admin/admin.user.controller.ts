@@ -85,6 +85,12 @@ export const adminAuthController = {
       process.env.JWT_SECRET
     );
 
+    const newCart: ICart = await Cart.create({
+      user: user._id,
+      products: [],
+      total: 0,
+    });
+
     return res.status(200).json({
       message: "User logged in successfully",
       token,

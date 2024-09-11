@@ -24,6 +24,7 @@ export interface IProduct extends ICategory {
   Subcategory: Types.ObjectId | ISubCategory;
   created_by: Types.ObjectId | IUser;
   modifed_by: Types.ObjectId | IUser;
+  _id: Types.ObjectId;
   quantity: number;
   price: number;
   price_offer?: number;
