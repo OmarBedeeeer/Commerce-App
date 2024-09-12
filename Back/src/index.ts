@@ -5,6 +5,7 @@ import categoryRouter from "./modules/category/router/category.router";
 import subcategoryRouter from "./modules/subcategoy/router/subcat.router";
 import productRouter from "./modules/product/router/product.router";
 import userRouter from "./modules/user/router/user.router";
+import addressRouter from "./modules/user/router/address.router";
 import adminRouter from "./modules/user/admin/admin.user.router";
 import cartRouter from "./modules/product/router/prodOnCart.router";
 import couponRouter from "./modules/cart/coupon/coupon.router";
@@ -26,6 +27,7 @@ cloudinary.config({
 app.use(express.json());
 app.use(express.static("upload"));
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/user", addressRouter);
 app.use("/api/v1/founder", adminRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/category", subcategoryRouter);

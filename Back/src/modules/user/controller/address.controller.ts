@@ -8,13 +8,12 @@ import { ParamSchema } from "express-validator";
 export const addressController = {
   addAddress: CatchError(async (req: Request<ParamsIds>, res: Response) => {
     const { address } = req.body;
-    const { addressId } = req.params;
     const user: IUser | null = await User.findById(req.user!.id);
 
     if (!user) throw new AppError("User not found", 404);
 
     const updateUser: IUser | null = await User.findByIdAndUpdate(
-      addressId,
+      req.user!.id,
       {
         address,
       },
