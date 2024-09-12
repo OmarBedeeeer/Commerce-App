@@ -1,10 +1,12 @@
 import Product from "../model/product.model";
+import Image from "../../img/model/img.model";
 import { Request, Response } from "express";
 import { AppError, CatchError } from "../../../utils/errorhandler";
 import Subcategory from "../../subcategoy/model/subcat.model";
 import { body, ParamsIds, Query } from "../../../interfaces/Queryinterfaces";
 import { IProduct, ISubCategory } from "../../../interfaces/dbinterfaces";
 import { ApiFeatures } from "../../../utils/api.features";
+import cloudinary, { UploadApiResponse } from "cloudinary";
 
 export const productController = {
   getProducts: CatchError(async (req: Request, res: Response) => {
@@ -12,7 +14,6 @@ export const productController = {
       Product.find({ deleted: false }),
       req.query
     );
-
     apiProductFeatures
       .filter()
       .sort()
@@ -20,10 +21,15 @@ export const productController = {
       .fields()
       .productPaginate();
 
-    const products: IProduct[] = await apiProductFeatures.query.populate({
-      path: "Subcategory",
-      select: "name image user category",
-    });
+    const products: IProduct[] = await apiProductFeatures.query
+      .populate({
+        path: "Subcategory",
+        select: "name image user category",
+      })
+      .populate({
+        path: "image",
+        select: "name path",
+      });
     if (!products) throw new AppError("Products not found", 404);
     res.status(200).json({
       products,
@@ -33,14 +39,18 @@ export const productController = {
   getProduct: CatchError(
     async (req: Request<{}, {}, {}, Query>, res: Response) => {
       const { product } = req.query;
-
       const products: IProduct[] = await Product.find({
         slug: product,
         deleted: false,
-      }).populate({
-        path: "Subcategory",
-        select: "name image user category",
-      });
+      })
+        .populate({
+          path: "Subcategory",
+          select: "name user category",
+        })
+        .populate({
+          path: "image",
+          select: "name path",
+        });
 
       if (!products) throw new AppError("Products not found", 404);
 
@@ -86,15 +96,33 @@ export const productController = {
           product: updatedProduct,
         });
       }
-      const newProduct: IProduct | null = await await Product.create({
+
+      // const uploadResult: UploadApiResponse = await cloudinary.v2.uploader
+      //   .upload(
+      //     "https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
+      //     {
+      //       public_id: "shoes",
+      //     }
+      //   )
+      //   .catch((error) => {
+      //     console.log(error);
+      //   });
+
+      // console.log(uploadResult);
+
+      // const img = await Image.create({
+      //   name: req.file?.originalname,
+      //   path: req.file?.filename,
+      // });
+
+      const newProduct: IProduct | null = await Product.create({
         name,
         description,
-        image: req.file,
+        // image: img,
         price,
         quantity,
         created_by: req.user.id,
         Subcategory: subCategoryId,
-
         modifed_by: req.user.id,
       });
 

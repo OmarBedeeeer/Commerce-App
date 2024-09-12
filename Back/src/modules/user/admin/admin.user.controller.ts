@@ -9,8 +9,8 @@ import {
   userLogin,
   userParams,
 } from "../../../interfaces/Queryinterfaces";
-import { IUser } from "../../../interfaces/dbinterfaces";
-// import cartModel from "../../cart/model/cart.model";
+import { ICart, IUser } from "../../../interfaces/dbinterfaces";
+import Cart from "../../cart/cart.model";
 
 export const adminAuthController = {
   sginUp: CatchError(
@@ -40,11 +40,11 @@ export const adminAuthController = {
 
       if (!newUser) throw new AppError("Something went wrong", 400);
 
-      // const newCart = await cartModel.create({
-      //   user: newUser._id,
-      //   products: [],
-      //   total: 0,
-      // });
+      const newCart: ICart = await Cart.create({
+        user: newUser._id,
+        products: [],
+        total: 0,
+      });
       return res.status(201).json({
         message: "User created successfully",
         user: newUser,
@@ -58,17 +58,6 @@ export const adminAuthController = {
       deleted: false,
       $or: [{ email: userName }, { phoneNumber: userName }],
     });
-    // const cart = await cartModel.findOne({
-    //   user: user?._id,
-    //   deleted: false,
-    // });
-
-    // if (!cart) {
-    //   await cartModel.create({
-    //     user: user?._id,
-    //     products: [],
-    //   });
-    // }
 
     if (!user) {
       return res.status(404).json({
@@ -91,14 +80,16 @@ export const adminAuthController = {
     const token: string = jwt.sign(
       {
         id: user._id,
-        email: user.email,
         role: user.role,
-        phoneNumber: user.phoneNumber,
-        address: user.address,
-        age: user.age,
       },
       process.env.JWT_SECRET
     );
+
+    const newCart: ICart = await Cart.create({
+      user: user._id,
+      products: [],
+      total: 0,
+    });
 
     return res.status(200).json({
       message: "User logged in successfully",
@@ -115,15 +106,11 @@ export const adminAuthController = {
 
       const { oldPassword, newPassword } = req.body;
 
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
-
       const user: IUser | null = await User.findById(id);
 
       if (!user) throw new AppError("User not found", 404);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user.id != req.user!.id) throw new AppError("Unauthorized", 401);
 
       const isMatch: boolean = await bcrypt.compare(oldPassword, user.password);
 
@@ -147,12 +134,7 @@ export const adminAuthController = {
     async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
       const { id } = req.params;
 
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
-
-      const { username, phoneNumber, age, address } = req.body;
-
+      const { username, phoneNumber, age } = req.body;
       if (!req.body)
         throw new AppError("Please provide at least one field", 400);
 
@@ -160,7 +142,7 @@ export const adminAuthController = {
 
       if (!user) throw new AppError("User not found", 404);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user.id != req.user!.id) throw new AppError("Unauthorized", 401);
 
       const updateUserProfile = await User.findByIdAndUpdate(
         id,
@@ -168,7 +150,6 @@ export const adminAuthController = {
           username,
           phoneNumber,
           age,
-          address,
         },
         {
           new: true,
@@ -195,15 +176,15 @@ export const adminAuthController = {
 
       const deleteUser = await User.findByIdAndDelete(id);
 
-      // const cart = await cartModel.findOneAndUpdate(
-      //   {
-      //     user: id,
-      //   },
-      //   {
-      //     deleted: true,
-      //     deletedAt: new Date(),
-      //   }
-      // );
+      const cart: ICart | null = await Cart.findOneAndUpdate(
+        {
+          user: id,
+        },
+        {
+          deleted: true,
+          deletedAt: new Date(),
+        }
+      );
 
       return res.status(200).json({
         message: "User deleted successfully",
@@ -221,15 +202,15 @@ export const adminAuthController = {
 
       if (!user) throw new AppError("User not found", 404);
 
-      // const cart = await cartModel.findOneAndUpdate(
-      //   {
-      //     user: id,
-      //   },
-      //   {
-      //     deleted: true,
-      //     deletedAt: new Date(),
-      //   }
-      // );
+      const cart: ICart | null = await Cart.findOneAndUpdate(
+        {
+          user: user.id,
+        },
+        {
+          deleted: true,
+          deletedAt: new Date(),
+        }
+      );
       const disableUser = await User.findByIdAndUpdate(
         userId,
         {

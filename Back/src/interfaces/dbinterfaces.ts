@@ -2,11 +2,16 @@ import { Document, Types } from "mongoose";
 export interface ICategory extends Document {
   name: string;
   description: string;
-  image: string;
+  image: Types.ObjectId | IImage;
   slug: string;
   deleted?: boolean;
   deletedAt?: Date | null;
   createdBy: IUser;
+}
+
+export interface IImage extends Document {
+  name: string;
+  path: string;
 }
 
 export interface ISubCategory extends ICategory {
@@ -19,6 +24,7 @@ export interface IProduct extends ICategory {
   Subcategory: Types.ObjectId | ISubCategory;
   created_by: Types.ObjectId | IUser;
   modifed_by: Types.ObjectId | IUser;
+  _id: Types.ObjectId;
   quantity: number;
   price: number;
   price_offer?: number;
@@ -32,11 +38,49 @@ export interface IUser extends Document {
   password: string;
   email: string;
   phoneNumber: string;
-  address: string;
+  address: UserAddress[];
   role?: string;
-  isVerified?: boolean;
   age?: number;
   isVerified?: boolean;
+  wishList?: Types.ObjectId[] | IProduct[];
   deleted?: boolean;
   deletedAt?: Date | null;
+}
+type UserAddress = {
+  street: string;
+  city: string;
+  state: string;
+  zip: number;
+};
+export interface ICart extends Document {
+  user: Types.ObjectId | IUser;
+  products?: {
+    product: Types.ObjectId | IProduct;
+    quantity?: number;
+  }[];
+  total?: number;
+  deleted?: boolean;
+  deletedAt?: Date | null;
+}
+
+export interface ICoupon extends Document {
+  coupon: string;
+  discountType: "%" | "cost";
+  discountValue: number;
+  minCartValue: number;
+  maxDiscountValue?: number;
+  expiryDate: Date;
+  isActive: boolean;
+  usedCount: number;
+  deleted?: boolean;
+  deletedAt?: Date | null;
+  applyCoupon: (cartTotal: number) => number;
+}
+export interface IOrder extends Document {
+  user: Types.ObjectId | IUser;
+  products: Types.ObjectId[] | IProduct[];
+  total: number;
+  status: "pending" | "completed";
+  address: string;
+  orderDate: Date;
 }

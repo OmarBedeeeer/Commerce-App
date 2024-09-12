@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IProduct } from "../../../interfaces/dbinterfaces";
+import { IImage, IProduct } from "../../../interfaces/dbinterfaces";
 import slugify from "slugify";
 const productSchema = new mongoose.Schema<IProduct>(
   {
@@ -22,14 +22,12 @@ const productSchema = new mongoose.Schema<IProduct>(
       unique: true,
     },
     image: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Image",
     },
     price: {
       type: Number,
       required: true,
-    },
-    price_offer: {
-      type: Number,
     },
     quantity: {
       type: Number,

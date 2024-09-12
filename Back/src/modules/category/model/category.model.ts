@@ -27,7 +27,8 @@ const categorySchema = new mongoose.Schema<ICategory>(
       unique: true,
     },
     image: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Image",
     },
     deleted: {
       type: Boolean,

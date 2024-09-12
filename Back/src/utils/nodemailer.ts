@@ -4,6 +4,13 @@ interface MailOptions {
   subject: string;
   text: string;
 }
+interface SendMailOptions {
+  from: string;
+  to: string | string[];
+  subject: string;
+  text: string;
+  html?: string;
+}
 const sendmail = async ({ to, subject, text }: MailOptions) => {
   //sender
   const transporter = nodemailer.createTransport({
@@ -20,7 +27,7 @@ const sendmail = async ({ to, subject, text }: MailOptions) => {
     to,
     subject,
     text,
-  });
+  } as SendMailOptions);
   if (info.rejected.length > 0) return false; //
   return true;
 };

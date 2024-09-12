@@ -26,6 +26,8 @@ export interface body {
   image?: string;
   quantity?: number;
   price?: number;
+  coupon?: string;
+  address: string;
 }
 
 export interface Query {
@@ -38,4 +40,7 @@ export interface ParamsIds {
   subCategoryId?: string;
   productId?: string;
   cartId?: string;
+  coupon?: string;
+  orderId?: string;
+  addressId?: string;
 }

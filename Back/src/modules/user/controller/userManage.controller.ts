@@ -2,7 +2,7 @@ import User from "../model/user.model";
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
-// import cartModel from "../../cart/model/cart.model";
+
 import { AppError, CatchError } from "../../../utils/errorhandler";
 import {
   UserRequestBody,
@@ -10,13 +10,13 @@ import {
   userParams,
   userLogin,
 } from "../../../interfaces/Queryinterfaces";
-import { IUser } from "../../../interfaces/dbinterfaces";
+import { ICart, IUser } from "../../../interfaces/dbinterfaces";
 import sendmail from "../../../utils/nodemailer";
 
 export const userAuthController = {
   sginUp: CatchError(
     async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
-      const { email, password, phoneNumber, age, address, username } = req.body;
+      const { email, password, phoneNumber, age, username } = req.body;
 
       if (req.body.role === "admin") throw new AppError("Forbidden", 403);
 
@@ -41,18 +41,17 @@ export const userAuthController = {
         phoneNumber,
         password: hashedPassword,
         age,
-        address,
       });
 
       if (!newUser) throw new AppError("Something went wrong", 400);
 
       const createLink = `${process.env.BACKEND_URL}/users/verify/${token}`;
 
-      // const newCart = await cartModel.create({
-      //   user: newUser._id,
-      //   products: [],
-      //   total: 0,
-      // });
+      const newCart: ICart = await Cart.create({
+        user: newUser._id,
+        products: [],
+        total: 0,
+      });
 
       const message = await sendmail({
         to: email,
@@ -149,25 +148,10 @@ export const userAuthController = {
       });
     }
 
-    // const cart = await cartModel.findOne({
-    //   user: user?._id,
-    //   deleted: false,
-    // });
-
-    // if (!cart) {
-    //   await cartModel.create({
-    //     user: user?._id,
-    //     products: [],
-    //   });
-    // }
-
     const token: string = jwt.sign(
       {
         id: user._id,
-        email: user.email,
         role: user.role,
-        phoneNumber: user.phoneNumber,
-        address: user.address,
       },
       process.env.JWT_SECRET,
       {
@@ -190,15 +174,11 @@ export const userAuthController = {
 
       const { id } = req.params;
 
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
-
       const user: IUser | null = await User.findById(id);
 
       if (!user) throw new AppError("User not found", 400);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user.id != req.user?.id) throw new AppError("Unauthorized", 401);
 
       const isMatch: boolean = await bcrypt.compare(oldPassword, user.password);
 
@@ -227,11 +207,7 @@ export const userAuthController = {
     async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
       const { id } = req.params;
 
-      if (!req.user) {
-        throw new AppError("Please Login first!", 400);
-      }
-
-      const { username, phoneNumber, age, address } = req.body;
+      const { username, phoneNumber, age } = req.body;
 
       if (!req.body)
         throw new AppError("Please provide at least one field", 400);
@@ -242,7 +218,7 @@ export const userAuthController = {
 
       if (!user) throw new AppError("User not found", 404);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user.id != req.user!.id) throw new AppError("Unauthorized", 401);
 
       const updateUserProfile: IUser | null = await User.findByIdAndUpdate(
         id,
@@ -250,7 +226,6 @@ export const userAuthController = {
           username,
           phoneNumber,
           age,
-          address,
         },
         {
           new: true,
@@ -267,15 +242,11 @@ export const userAuthController = {
     async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
       const { id } = req.params;
 
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
-
       const user: IUser | null = await User.findById(id);
 
       if (!user) throw new AppError("User not found", 404);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user?.id != req.user?.id) throw new AppError("Unauthorized", 401);
 
       const deleteUser: IUser | null = await User.findByIdAndUpdate(
         id,
@@ -288,15 +259,15 @@ export const userAuthController = {
         }
       );
 
-      // const cart = await cartModel.findOneAndUpdate(
-      //   {
-      //     user: id,
-      //   },
-      //   {
-      //     deleted: true,
-      //     deletedAt: new Date(),
-      //   }
-      // );
+      const cart: ICart | null = await Cart.findOneAndUpdate(
+        {
+          user: id,
+        },
+        {
+          deleted: true,
+          deletedAt: new Date(),
+        }
+      );
 
       return res.status(200).json({
         message: "User deleted successfully",
@@ -308,29 +279,19 @@ export const userAuthController = {
     async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
       const { id } = req.params;
 
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
-
       const user: IUser | null = await User.findById(id, {
         deleted: false,
       });
 
       if (!user) throw new AppError("User not found", 404);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user.id != req.user?.id) throw new AppError("Unauthorized", 401);
 
       const deleteUser: IUser | null = await User.findByIdAndDelete(id);
 
-      // const cart = await cartModel.findOneAndUpdate(
-      //   {
-      //     user: id,
-      //   },
-      //   {
-      //     deleted: true,
-      //     deletedAt: new Date(),
-      //   }
-      // );
+      const cart: ICart | null = await Cart.findOneAndDelete({
+        user: id,
+      });
 
       return res.status(200).json({
         message: "User deleted successfully",

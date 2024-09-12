@@ -3,8 +3,9 @@ import { Request, Response } from "express";
 import { AppError, CatchError } from "../../../utils/errorhandler";
 import { body, ParamsIds, Query } from "../../../interfaces/Queryinterfaces";
 import Category from "../../category/model/category.model";
-import { ISubCategory } from "../../../interfaces/dbinterfaces";
+import { IProduct, ISubCategory } from "../../../interfaces/dbinterfaces";
 import { ApiFeatures } from "../../../utils/api.features";
+import Product from "../../product/model/product.model";
 
 export const subcategoryController = {
   subCategories: CatchError(async (req: Request, res: Response) => {
@@ -101,20 +102,49 @@ export const subcategoryController = {
 
       if (!req.user) throw new AppError("Unauthorized", 401);
 
-      const subcategory: ISubCategory | null =
-        await Subcategory.findByIdAndUpdate(
-          { _id: subCategoryId },
-          { modifed_by: req.user.id, deleted: true, deletedAt: new Date() },
-          { new: true }
-        );
+      const findSubCate: ISubCategory | null = await Subcategory.findOne({
+        _id: subCategoryId,
+        deleted: false,
+      });
 
-      //TODO: deactive all product belong to this subcategory
+      const allSubCateProducts: IProduct[] | null = await Product.find({
+        Subcategory: subCategoryId,
+        deleted: false,
+      });
 
-      if (!subcategory) throw new AppError("Can't delete Subcategory", 400);
+      if (!findSubCate) throw new AppError("Sub-Category Not found", 404);
+      if (!allSubCateProducts) throw new AppError("Product Not found", 404);
+
+      await Promise.all(
+        allSubCateProducts.map(async (prod) => {
+          prod.deleted = true;
+          prod.deletedAt = new Date();
+          await prod.save();
+        })
+      );
+
+      const deleteSubCate = await Subcategory.updateOne(
+        {
+          _id: findSubCate?.id,
+        },
+        {
+          deleted: true,
+          deletedAt: new Date(),
+        },
+        {
+          new: true,
+        }
+      );
+      await Subcategory.findByIdAndUpdate(
+        { _id: subCategoryId },
+        { modifed_by: req.user.id, deleted: true, deletedAt: new Date() },
+        { new: true }
+      );
+
+      if (!deleteSubCate) throw new AppError("Can't delete Subcategory", 400);
 
       res.status(200).json({
         message: "Subcategory deleted successfully",
-        subcategory,
       });
     }
   ),
@@ -123,22 +153,49 @@ export const subcategoryController = {
     async (req: Request<ParamsIds, {}, {}>, res: Response) => {
       const { subCategoryId } = req.params;
 
-      if (!req.user) throw new AppError("Unauthorized", 401);
+      const findSubCate: ISubCategory | null = await Subcategory.findOne({
+        _id: subCategoryId,
+        deleted: true,
+      });
 
-      const subcategory: ISubCategory | null =
-        await Subcategory.findByIdAndUpdate(
-          { _id: subCategoryId },
-          { modifed_by: req.user.id, deleted: false, deletedAt: null },
-          { new: true }
-        );
+      const allSubCateProducts: IProduct[] | null = await Product.find({
+        Subcategory: subCategoryId,
+        deleted: true,
+      });
 
-      //TODO: reactive all product belong to this subcategory
+      if (!findSubCate) throw new AppError("Sub-Category Not found", 404);
+      if (!allSubCateProducts) throw new AppError("Product Not found", 404);
 
-      if (!subcategory) throw new AppError("Can't delete Subcategory", 400);
+      await Promise.all(
+        allSubCateProducts.map(async (prod) => {
+          prod.deleted = false;
+          prod.deletedAt = null;
+          await prod.save();
+        })
+      );
+
+      const reactiveSubCate = await Subcategory.updateOne(
+        {
+          _id: findSubCate?.id,
+        },
+        {
+          deleted: false,
+          deletedAt: new Date(),
+        },
+        {
+          new: true,
+        }
+      );
+      await Subcategory.findByIdAndUpdate(
+        { _id: subCategoryId },
+        { modifed_by: req.user?.id, deleted: false, deletedAt: null },
+        { new: true }
+      );
+
+      if (!reactiveSubCate) throw new AppError("Can't delete Subcategory", 400);
 
       res.status(200).json({
-        message: "Subcategory deleted successfully",
-        subcategory,
+        message: "Subcategory reactivated successfully",
       });
     }
   ),
@@ -147,26 +204,20 @@ export const subcategoryController = {
     async (req: Request<ParamsIds, {}, {}>, res: Response) => {
       const { subCategoryId } = req.params;
 
-      if (!req.user) throw new AppError("Unauthorized", 401);
+      const findSubCate: ISubCategory | null =
+        await Subcategory.findOneAndDelete({
+          _id: subCategoryId,
+          deleted: false,
+        });
+      if (!findSubCate) throw new AppError("Sub-Category Not found", 404);
 
-      const findSubCate: ISubCategory | null = await Subcategory.findOne({
-        _id: subCategoryId,
+      const products = await Product.deleteMany({
+        Subcategory: subCategoryId,
         deleted: false,
       });
 
-      if (!findSubCate) throw new AppError("Sub-Category Not found", 404);
-      const subcategory: ISubCategory | null =
-        await Subcategory.findByIdAndDelete({
-          _id: subCategoryId,
-        });
-
-      //TODO: Delete all product belong to this subcategory
-
-      if (!subcategory) throw new AppError("Can't delete Subcategory", 400);
-
       res.status(200).json({
         message: "Subcategory deleted successfully",
-        subcategory,
       });
     }
   ),
