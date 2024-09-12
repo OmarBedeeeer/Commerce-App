@@ -42,6 +42,7 @@ export interface IUser extends Document {
   role?: string;
   age?: number;
   isVerified?: boolean;
+  wishList?: Types.ObjectId[] | IProduct[];
   deleted?: boolean;
   deletedAt?: Date | null;
 }

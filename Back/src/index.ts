@@ -9,6 +9,7 @@ import adminRouter from "./modules/user/admin/admin.user.router";
 import cartRouter from "./modules/product/router/prodOnCart.router";
 import couponRouter from "./modules/cart/coupon/coupon.router";
 import orderRouter from "./modules/cart/order/order.router";
+import wishListRouter from "./modules/product/router/prodOnWishList.router";
 
 import { AppError } from "./utils/errorhandler";
 const app: Application = express();
@@ -32,6 +33,7 @@ app.use("/api/v1/product", productRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/coupon", couponRouter);
 app.use("/api/v1/orders", orderRouter);
+app.use("/api/v1/wishlist", wishListRouter);
 
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   res.status(404).send("Can't find this Page");

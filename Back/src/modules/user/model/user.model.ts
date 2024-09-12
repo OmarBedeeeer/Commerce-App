@@ -42,6 +42,12 @@ const userSchema = new mongoose.Schema<IUser>(
       type: Number,
       trim: true,
     },
+    wishList: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
     isVerified: { type: Boolean, default: false },
     deleted: { type: Boolean, default: false },
     deletedAt: { type: Date },
