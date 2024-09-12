@@ -106,15 +106,11 @@ export const adminAuthController = {
 
       const { oldPassword, newPassword } = req.body;
 
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
-
       const user: IUser | null = await User.findById(id);
 
       if (!user) throw new AppError("User not found", 404);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user.id != req.user!.id) throw new AppError("Unauthorized", 401);
 
       const isMatch: boolean = await bcrypt.compare(oldPassword, user.password);
 
@@ -138,12 +134,7 @@ export const adminAuthController = {
     async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
       const { id } = req.params;
 
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
-
-      const { username, phoneNumber, age, address } = req.body;
-
+      const { username, phoneNumber, age } = req.body;
       if (!req.body)
         throw new AppError("Please provide at least one field", 400);
 
@@ -151,7 +142,7 @@ export const adminAuthController = {
 
       if (!user) throw new AppError("User not found", 404);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user.id != req.user!.id) throw new AppError("Unauthorized", 401);
 
       const updateUserProfile = await User.findByIdAndUpdate(
         id,
@@ -159,7 +150,6 @@ export const adminAuthController = {
           username,
           phoneNumber,
           age,
-          address,
         },
         {
           new: true,

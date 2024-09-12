@@ -38,7 +38,7 @@ export interface IUser extends Document {
   password: string;
   email: string;
   phoneNumber: string;
-  address: string;
+  address: UserAddress[];
   role?: string;
   age?: number;
   isVerified?: boolean;
@@ -46,6 +46,12 @@ export interface IUser extends Document {
   deleted?: boolean;
   deletedAt?: Date | null;
 }
+type UserAddress = {
+  street: string;
+  city: string;
+  state: string;
+  zip: number;
+};
 export interface ICart extends Document {
   user: Types.ObjectId | IUser;
   products?: {

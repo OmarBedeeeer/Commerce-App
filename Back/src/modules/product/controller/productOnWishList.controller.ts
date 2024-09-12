@@ -2,7 +2,7 @@ import User from "../../user/model/user.model";
 import { Request, Response } from "express";
 import { CatchError, AppError } from "../../../utils/errorhandler";
 import Product from "../model/product.model";
-import { IUser } from "../../../interfaces/dbinterfaces";
+import { IProduct, IUser } from "../../../interfaces/dbinterfaces";
 import { ParamsIds } from "../../../interfaces/Queryinterfaces";
 
 export const productOnWishList = {
@@ -10,7 +10,19 @@ export const productOnWishList = {
     async (req: Request<ParamsIds>, res: Response) => {
       const { productId } = req.params;
 
-      const user: IUser | null = await User.findByIdAndUpdate(
+      let user: IUser | null = await User.findOne({
+        _id: req.user!.id,
+        deleted: false,
+      });
+      if (!user) throw new AppError("Please Login first", 404);
+
+      const product: IProduct | null = await Product.findById({
+        _id: productId,
+        deleted: false,
+      });
+      if (!product) throw new AppError("Product not found", 404);
+
+      user = await User.findByIdAndUpdate(
         req.user!.id,
         {
           $addToSet: { wishList: productId },
@@ -31,8 +43,9 @@ export const productOnWishList = {
   ),
 
   getWishList: CatchError(async (req: Request, res: Response) => {
-    const user: IUser | null = await User.findById({
+    const user: IUser | null = await User.findOne({
       _id: req.user!.id,
+      deleted: false,
     })
       .select("username wishList")
       .populate({
@@ -51,7 +64,13 @@ export const productOnWishList = {
     async (req: Request<ParamsIds>, res: Response) => {
       const { productId } = req.params;
 
-      const user: IUser | null = await User.findByIdAndUpdate(
+      let user: IUser | null = await User.findOne({
+        _id: req.user!.id,
+        deleted: false,
+      });
+      if (!user) throw new AppError("Please Login first", 404);
+
+      user = await User.findByIdAndUpdate(
         req.user!.id,
         {
           $pull: { wishList: productId },

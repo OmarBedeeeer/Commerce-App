@@ -17,7 +17,7 @@ import Cart from "../../cart/cart.model";
 export const userAuthController = {
   sginUp: CatchError(
     async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
-      const { email, password, phoneNumber, age, address, username } = req.body;
+      const { email, password, phoneNumber, age, username } = req.body;
 
       if (req.body.role === "admin") throw new AppError("Forbidden", 403);
 
@@ -42,7 +42,6 @@ export const userAuthController = {
         phoneNumber,
         password: hashedPassword,
         age,
-        address,
       });
 
       if (!newUser) throw new AppError("Something went wrong", 400);
@@ -209,11 +208,7 @@ export const userAuthController = {
     async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
       const { id } = req.params;
 
-      if (!req.user) {
-        throw new AppError("Please Login first!", 400);
-      }
-
-      const { username, phoneNumber, age, address } = req.body;
+      const { username, phoneNumber, age } = req.body;
 
       if (!req.body)
         throw new AppError("Please provide at least one field", 400);
@@ -224,7 +219,7 @@ export const userAuthController = {
 
       if (!user) throw new AppError("User not found", 404);
 
-      if (user.id != req.user.id) throw new AppError("Unauthorized", 401);
+      if (user.id != req.user!.id) throw new AppError("Unauthorized", 401);
 
       const updateUserProfile: IUser | null = await User.findByIdAndUpdate(
         id,
@@ -232,7 +227,6 @@ export const userAuthController = {
           username,
           phoneNumber,
           age,
-          address,
         },
         {
           new: true,
@@ -253,7 +247,7 @@ export const userAuthController = {
 
       if (!user) throw new AppError("User not found", 404);
 
-      if (user.id != req.user?.id) throw new AppError("Unauthorized", 401);
+      if (user?.id != req.user?.id) throw new AppError("Unauthorized", 401);
 
       const deleteUser: IUser | null = await User.findByIdAndUpdate(
         id,
