@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import mongoose, { Document, Model, Types } from "mongoose";
 export interface ICategory extends Document {
   name: string;
   description: string;
@@ -28,9 +28,10 @@ export interface IProduct extends ICategory {
   quantity: number;
   price: number;
   price_offer?: number;
-  ratingCount?: number;
-  ratingAverage?: number;
+  averageRating?: number;
+  totalRatings?: number;
   sold?: number;
+  reviews?: Types.ObjectId[] | IReview[];
 }
 
 export interface IUser extends Document {
@@ -83,4 +84,16 @@ export interface IOrder extends Document {
   status: "pending" | "completed";
   address: string;
   orderDate: Date;
+}
+
+export interface IReview extends Document {
+  product: mongoose.Types.ObjectId;
+  user: mongoose.Types.ObjectId;
+  rating: number;
+  comment?: string;
+  createdAt?: Date;
+}
+
+export interface ReviewModel extends Model<IReview> {
+  calculateAverageRating(productId: mongoose.Types.ObjectId): Promise<void>;
 }
