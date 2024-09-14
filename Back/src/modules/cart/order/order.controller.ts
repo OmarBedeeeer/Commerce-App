@@ -7,6 +7,7 @@ import { ParamsIds } from "../../../interfaces/Queryinterfaces";
 
 export const orderController = {
   getUserOrders: CatchError(async (req: Request, res: Response) => {
+    //TODO: I can't remember what i did here XD, need to check it back.
     const user: IUser | null = await User.findById({ _id: req.user?.id });
 
     let orders: IOrder[] | null;
@@ -14,10 +15,15 @@ export const orderController = {
     if (user!.role === "admin") {
       orders = await Order.find().populate("user", "name email");
     } else {
-      orders = await Order.find({ user: user!._id }).populate(
-        "user",
-        "name email"
-      );
+      orders = await Order.find({ user: user!._id })
+        .populate({
+          path: "user",
+          select: "name email",
+        })
+        .populate({
+          path: "products.product",
+          select: "name image price",
+        });
     }
 
     if (!orders || orders.length === 0) {

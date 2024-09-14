@@ -35,6 +35,7 @@ export interface IProduct extends ICategory {
 }
 
 export interface IUser extends Document {
+  _id: Types.ObjectId;
   username: string;
   password: string;
   email: string;

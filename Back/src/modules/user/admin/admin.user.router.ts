@@ -14,25 +14,24 @@ const router = Router();
 
 router.post(
   "/admin-register",
-  // createUserValidation,
+  createUserValidation,
   adminAuthController.sginUp
 );
-router.post(
-  "/admin-login", // validateLogin,
-  adminAuthController.LogIn
-);
+router.post("/admin-login", validateLogin, adminAuthController.LogIn);
+
 router.patch(
-  "/:id/admin-change-password",
+  "/admin-change-password",
   authentecation,
   authorized("admin"),
-  // changePassValidation,
+  changePassValidation,
   adminAuthController.changePassword
 );
+
 router.put(
-  "/:id/admin-update-user",
+  "/admin-update-user",
   authentecation,
   authorized("admin"),
-  // updateUserValidation,
+  updateUserValidation,
   adminAuthController.updateAdmin
 );
 
@@ -40,24 +39,16 @@ router.put(
   "/:userId/deactivate-user",
   authentecation,
   authorized("admin"),
-  // userParamControlValidation,
+  userParamControlValidation,
   adminAuthController.disableUser
 );
 
-router.patch(
-  "/:userId/enableUser",
+router.put(
+  "/:userId/reactive-User",
   authentecation,
   authorized("admin"),
-  // userParamControlValidation,
+  userParamControlValidation,
   adminAuthController.enableUser
-);
-
-router.delete(
-  "/:id/delete-admin",
-  authentecation,
-  authorized("admin"),
-  // paramValidation,
-  adminAuthController.deleteAdmin
 );
 
 export default router;

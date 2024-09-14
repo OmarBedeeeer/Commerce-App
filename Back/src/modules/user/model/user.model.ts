@@ -28,29 +28,6 @@ const userSchema = new mongoose.Schema<IUser>(
       trim: true,
       unique: true,
     },
-    address: [
-      {
-        street: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-        city: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-        state: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-        zip: {
-          type: Number,
-          trim: true,
-        },
-      },
-    ],
     role: {
       type: String,
       enum: ["user", "admin"],

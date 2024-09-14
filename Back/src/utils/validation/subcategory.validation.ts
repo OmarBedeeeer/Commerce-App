@@ -39,7 +39,7 @@ export const updateSubCategoryValidation: RequestHandler[] = [
     .withMessage("Description is required")
     .trim()
     .escape(),
-  param("subcategoryId")
+  param("subCategoryId")
     .notEmpty()
     .withMessage("Subcategory ID is required")
     .isMongoId()
@@ -49,7 +49,7 @@ export const updateSubCategoryValidation: RequestHandler[] = [
 ];
 
 export const paramValidation: RequestHandler[] = [
-  param("subcategoryId")
+  param("subCategoryId")
     .notEmpty()
     .withMessage("Subcategory ID is required")
     .isMongoId()

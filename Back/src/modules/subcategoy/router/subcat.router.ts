@@ -13,14 +13,14 @@ router.get("/subcategories", subcategoryController.subCategories);
 
 router.get(
   "/subcategories/:subCategoryId",
-  // paramValidation,
+  paramValidation,
   subcategoryController.getSubCategory
 );
 router.post(
   "/founder",
   authentecation,
   authorized("admin"),
-  // createSubCategoryValidation,
+  createSubCategoryValidation,
   subcategoryController.createSubCategory
 );
 
@@ -28,7 +28,7 @@ router.patch(
   "/founder/subcategories/:subCategoryId",
   authentecation,
   authorized("admin"),
-  // updateSubCategoryValidation,
+  updateSubCategoryValidation,
   subcategoryController.updateSubCategory
 );
 
@@ -36,7 +36,7 @@ router.patch(
   "/founder/subcategories/:subCategoryId/deactive",
   authentecation,
   authorized("admin"),
-  // paramValidation,
+  paramValidation,
   subcategoryController.deactiveSubCategory
 );
 
@@ -44,7 +44,7 @@ router.patch(
   "/founder/subcategories/:subCategoryId/reactive",
   authentecation,
   authorized("admin"),
-  // paramValidation,
+  paramValidation,
   subcategoryController.reactiveSubCategory
 );
 
@@ -52,7 +52,7 @@ router.delete(
   "/founder/subcategories/:subCategoryId/delete-subcategory",
   authentecation,
   authorized("admin"),
-  // paramValidation,
+  paramValidation,
   subcategoryController.deleteSubCategory
 );
 
