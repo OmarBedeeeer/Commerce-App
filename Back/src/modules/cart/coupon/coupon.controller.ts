@@ -61,7 +61,6 @@ export const couponController = {
   }),
 
   deleteCoupon: CatchError(async (req: Request<ParamsIds>, res: Response) => {
-    console.log(req.params.coupon);
     const coupon: ICoupon | null = await Coupon.findOneAndDelete({
       _id: req.params.coupon,
     });

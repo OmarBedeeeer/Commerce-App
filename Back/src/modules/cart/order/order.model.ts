@@ -28,13 +28,32 @@ const orderSchema = new mongoose.Schema<IOrder>(
     },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "shipped", "delivered", "cancelled"],
+      enum: ["pending", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
-    address: {
-      type: String,
-      required: true,
-    },
+    address: [
+      {
+        street: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        city: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        state: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        zip: {
+          type: Number,
+          trim: true,
+        },
+      },
+    ],
     orderDate: {
       type: Date,
       default: Date.now,

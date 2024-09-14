@@ -13,6 +13,7 @@ import {
 import mongoose from "mongoose";
 import Coupon from "../../cart/coupon/coupon.model";
 import Order from "../../cart/order/order.model";
+import { CLIENT_RENEG_LIMIT } from "tls";
 
 export const prodOnCart = {
   getProductsOnCart: CatchError(
@@ -60,30 +61,27 @@ export const prodOnCart = {
       if (findProduct.quantity < quantity!) {
         throw new AppError("Not enough quantity", 400);
       }
-      const updateCart: ICart | null = await Cart.findOne({
-        user: req.user?.id,
-      })
+
+      const updateCart: ICart | null = await Cart.findOneAndUpdate(
+        {
+          user: req.user?.id,
+        },
+        {
+          $addToSet: {
+            products: {
+              product: productId as unknown as mongoose.Types.ObjectId,
+              quantity: quantity || 1,
+            },
+          },
+        },
+        { new: true }
+      )
         .select("user products total")
         .populate({
           path: "products.product",
           model: "Product",
           select: "name price description",
         });
-
-      const productEntry = updateCart!.products!.find((entry) => {
-        return (entry.product as IProduct)._id.toString() === productId;
-      });
-
-      if (!productEntry) {
-        updateCart?.products?.push({
-          product: productId as unknown as mongoose.Types.ObjectId,
-          quantity: quantity || 1,
-        });
-      } else {
-        productEntry.quantity! += quantity!;
-      }
-
-      if (!productEntry) updateCart?.products?.push();
 
       updateCart!.total! += findProduct.price * quantity!;
       await updateCart?.save();
@@ -94,50 +92,93 @@ export const prodOnCart = {
     }
   ),
 
+  // deleteProductFromCart: CatchError(
+  //   async (req: Request<ParamsIds>, res: Response) => {
+  //     const { productId } = req.params;
+
+  //     const findProduct: IProduct | null = await Product.findById(productId);
+  //     if (!findProduct) throw new AppError("Can't find Product.", 404);
+
+  //     const updateCart: ICart | null = await Cart.findOne({
+  //       user: req.user?.id,
+  //     }).populate({
+  //       path: "products.product",
+  //       model: "Product",
+  //       select: "price",
+  //     });
+
+  //     if (!updateCart) throw new AppError("Cart not found", 404);
+
+  //     const productEntry = updateCart!.products?.find(
+  //       (item) => item.product._id.toString() === productId
+  //     );
+  //     const product = productEntry!.product as IProduct;
+  //     const amountToSubtract = product.price * productEntry!.quantity!;
+
+  //     await Cart.updateOne(
+  //       { user: req.user?.id },
+  //       { $pull: { products: { product: req.params.productId } } }
+  //     );
+
+  //     updateCart.total! -= amountToSubtract;
+  //     await updateCart.save();
+
+  //     res.status(200).json({
+  //       status: "success",
+  //       message: "Product removed from cart successfully.",
+  //     });
+  //   }
+  // ),
   deleteProductFromCart: CatchError(
-    async (req: Request<ParamsIds>, res: Response) => {
+    async (req: Request<ParamsIds, {}, body>, res: Response) => {
       const { productId } = req.params;
 
-      const findProduct: IProduct | null = await Product.findById(productId);
-      if (!findProduct) throw new AppError("Can't find Product.", 404);
+      // Find the cart for the current user
+      const cart: ICart | null = await Cart.findOne({ user: req.user?.id })
+        .select("user products total")
+        .populate({
+          path: "products.product",
+          model: "Product",
+          select: "name price",
+        });
 
-      const updateCart: ICart | null = await Cart.findOne({
-        user: req.user?.id,
-      }).populate({
-        path: "products.product",
-        model: "Product",
-        select: "price",
-      });
+      if (!cart) {
+        throw new AppError("Cart not found.", 404);
+      }
 
-      if (!updateCart) throw new AppError("Cart not found", 404);
-
-      const productEntry = updateCart!.products?.find(
-        (item) => item.product._id.toString() === productId
-      );
-      const product = productEntry!.product as IProduct;
-      const amountToSubtract = product.price * productEntry!.quantity!;
-
-      await Cart.updateOne(
-        { user: req.user?.id },
-        { $pull: { products: { product: req.params.productId } } }
+      const productIndex = cart.products?.findIndex(
+        (p) => p.product._id.toString() === productId
       );
 
-      updateCart.total! -= amountToSubtract;
-      await updateCart.save();
+      if (productIndex === -1) {
+        throw new AppError("Product not found in cart.", 404);
+      }
 
-      res.status(200).json({
-        status: "success",
-        message: "Product removed from cart successfully.",
+      const productInCart = cart.products![productIndex!];
+
+      const priceReduction =
+        (productInCart.product as IProduct).price * productInCart.quantity!;
+
+      cart.total = (cart.total ?? 0) - priceReduction;
+
+      cart.products!.splice(productIndex!, 1);
+
+      await cart.save();
+
+      return res.status(200).json({
+        message: "Product instance removed from cart successfully",
+        cart,
       });
     }
   ),
+
   confirmOrder: CatchError(
     async (req: Request<userParams, {}, body, Query>, res: Response) => {
-      const { userId } = req.params;
       const { coupon, address } = req.body;
       const user: IUser | null = await User.findById({
         _id: req.user?.id,
       });
+
       if (!user) throw new AppError("User not found", 404);
       const cart: ICart | null = await Cart.findOne({
         user: user._id,

@@ -7,6 +7,10 @@ const couponSchema = new mongoose.Schema<ICoupon>(
       type: String,
       required: true,
       unique: true,
+      trim: true,
+      lowercase: true,
+      minlength: 3,
+      maxlength: 10,
     },
     discountType: {
       type: String,

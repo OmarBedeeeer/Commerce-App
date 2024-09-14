@@ -32,15 +32,6 @@ export const createUserValidation: RequestHandler[] = [
     .withMessage("Invalid phone number")
     .trim()
     .escape(),
-  body("address")
-    .notEmpty()
-    .withMessage("Address is required")
-    .isLength({ min: 6, max: 500 })
-    .withMessage(
-      "Address must be at least 10 characters long and less than 500"
-    )
-    .trim()
-    .escape(),
   body("role").isLength({ min: 0, max: 0 }).withMessage("Role isn't required"),
   body("age").optional().isNumeric().withMessage("Age must be a number").trim(),
   validatorMiddleware,
@@ -87,12 +78,6 @@ export const changePassValidation: RequestHandler[] = [
     )
     .trim()
     .escape(),
-  param("id")
-    .notEmpty()
-    .withMessage("User ID is required")
-    .isMongoId()
-    .withMessage("Invalid user id")
-    .trim(),
   validatorMiddleware,
 ];
 
@@ -115,21 +100,7 @@ export const updateUserValidation: RequestHandler[] = [
     .withMessage("Invalid phone number")
     .trim()
     .escape(),
-  body("address")
-    .optional()
-    .isLength({ min: 10, max: 500 })
-    .withMessage(
-      "Address must be at least 10 characters long and less than 500"
-    )
-    .trim()
-    .escape(),
   body("age").optional().isNumeric().withMessage("Age must be a number").trim(),
-  param("id")
-    .notEmpty()
-    .withMessage("User ID is required")
-    .isMongoId()
-    .withMessage("Invalid user id")
-    .trim(),
   validatorMiddleware,
 ];
 

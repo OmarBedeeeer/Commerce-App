@@ -38,11 +38,12 @@ const productSchema = new mongoose.Schema<IProduct>(
       type: Number,
       default: 0,
     },
-    ratingCount: {
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
+    averageRating: {
       type: Number,
       default: 0,
     },
-    ratingAverage: {
+    totalRatings: {
       type: Number,
       default: 0,
     },

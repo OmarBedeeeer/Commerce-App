@@ -102,11 +102,9 @@ export const adminAuthController = {
       req: Request<userParams, {}, userChangePasswordBody>,
       res: Response
     ) => {
-      const { id } = req.params;
-
       const { oldPassword, newPassword } = req.body;
 
-      const user: IUser | null = await User.findById(id);
+      const user: IUser | null = await User.findById({ _id: req.user!.id });
 
       if (!user) throw new AppError("User not found", 404);
 
@@ -132,20 +130,12 @@ export const adminAuthController = {
   ),
   updateAdmin: CatchError(
     async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
-      const { id } = req.params;
-
       const { username, phoneNumber, age } = req.body;
       if (!req.body)
         throw new AppError("Please provide at least one field", 400);
 
-      const user: IUser | null = await User.findById(id);
-
-      if (!user) throw new AppError("User not found", 404);
-
-      if (user.id != req.user!.id) throw new AppError("Unauthorized", 401);
-
-      const updateUserProfile = await User.findByIdAndUpdate(
-        id,
+      const updateUserProfile: IUser | null = await User.findByIdAndUpdate(
+        { _id: req.user!.id, deleted: false },
         {
           username,
           phoneNumber,
@@ -155,48 +145,18 @@ export const adminAuthController = {
           new: true,
         }
       );
+      if (updateUserProfile?._id.toString() != req.user!.id)
+        throw new AppError("Unauthorized", 401);
 
       return res.status(200).json({
         message: "Profile updated successfully",
-        user: updateUserProfile,
       });
     }
   ),
-  deleteAdmin: CatchError(
-    async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
-      const { id } = req.params;
 
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
-
-      const user: IUser | null = await User.findById(id);
-
-      if (!user) throw new AppError("User not found", 404);
-
-      const deleteUser = await User.findByIdAndDelete(id);
-
-      const cart: ICart | null = await Cart.findOneAndUpdate(
-        {
-          user: id,
-        },
-        {
-          deleted: true,
-          deletedAt: new Date(),
-        }
-      );
-
-      return res.status(200).json({
-        message: "User deleted successfully",
-      });
-    }
-  ),
   disableUser: CatchError(
     async (req: Request<userParams, {}, UserRequestBody>, res: Response) => {
       const { userId } = req.params;
-      if (!req.user) {
-        throw new AppError("Unauthorized", 401);
-      }
 
       const user: IUser | null = await User.findById(userId);
 

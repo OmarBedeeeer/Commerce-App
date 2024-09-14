@@ -156,7 +156,7 @@ export const categoryController = {
         },
         {
           deleted: false,
-          deletedAt: new Date(),
+          deletedAt: null,
         },
         {
           new: true,
