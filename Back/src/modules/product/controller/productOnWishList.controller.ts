@@ -30,7 +30,12 @@ export const productOnWishList = {
         {
           new: true,
         }
-      );
+      )
+        .select("username wishList")
+        .populate({
+          path: "wishList",
+          select: "name price image",
+        });
 
       if (!user) throw new AppError("Please Login first", 404);
 
@@ -78,7 +83,12 @@ export const productOnWishList = {
         {
           new: true,
         }
-      );
+      )
+        .select("username wishList")
+        .populate({
+          path: "wishList",
+          select: "name price image",
+        });
 
       if (!user) throw new AppError("Please Login first", 404);
 
