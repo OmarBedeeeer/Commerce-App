@@ -18,8 +18,8 @@ router.post(
   "/:subCategoryId/create-product",
   authentecation,
   authorized("admin"),
-  createProductValidation,
   getUploadMiddleware("img"),
+  createProductValidation,
   productController.createProduct
 );
 

@@ -6,8 +6,8 @@ declare namespace NodeJS {
     readonly JWT_SECRET: string;
     readonly ENV: "Development" | "Production";
     readonly BACKEND_URL: string;
-    CLOUD_NAME: string;
-    API_KEY: string;
-    API_SECRET: string;
+    readonly CLOUD_NAME: string;
+    readonly API_KEY: string;
+    readonly API_SECRET: string;
   }
 }
