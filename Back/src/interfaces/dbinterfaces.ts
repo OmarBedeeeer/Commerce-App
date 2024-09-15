@@ -29,7 +29,7 @@ export interface IProduct extends ICategory {
   price: number;
   price_offer?: number;
   averageRating?: number;
-  totalRatings?: number;
+  numReviews?: number;
   sold?: number;
   reviews?: Types.ObjectId[] | IReview[];
 }
@@ -96,5 +96,5 @@ export interface IReview extends Document {
 }
 
 export interface ReviewModel extends Model<IReview> {
-  calculateAverageRating(productId: mongoose.Types.ObjectId): Promise<void>;
+  calculateAverageRating(productId: Types.ObjectId): Promise<void>;
 }
