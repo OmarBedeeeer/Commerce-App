@@ -178,21 +178,31 @@ export const subcategoryController = {
         deleted: true,
       });
 
-      const allSubCateProducts: IProduct[] | null = await Product.find({
+      const allSubCateProducts: IProduct[] = await Product.find({
         Subcategory: subCategoryId,
         deleted: true,
       });
 
       if (!findSubCate) throw new AppError("Sub-Category Not found", 404);
-      if (!allSubCateProducts) throw new AppError("Product Not found", 404);
 
-      await Promise.all(
-        allSubCateProducts.map(async (prod) => {
-          prod.deleted = false;
-          prod.deletedAt = null;
-          await prod.save();
-        })
+      await Product.updateMany(
+        {
+          Subcategory: subCategoryId,
+          deleted: true,
+        },
+        {
+          deleted: false,
+          deletedAt: null,
+        }
       );
+
+      // await Promise.all(
+      //   allSubCateProducts.map(async (prod) => {
+      //     prod.deleted = false;
+      //     prod.deletedAt = null;
+      //     await prod.save();
+      //   })
+      // );
 
       const reactiveSubCate = await Subcategory.updateOne(
         {
@@ -200,12 +210,13 @@ export const subcategoryController = {
         },
         {
           deleted: false,
-          deletedAt: new Date(),
+          deletedAt: null,
         },
         {
           new: true,
         }
       );
+
       await Subcategory.findByIdAndUpdate(
         { _id: subCategoryId },
         { modifed_by: req.user?.id, deleted: false, deletedAt: null },
