@@ -10,6 +10,8 @@ import {
 import { ApiFeatures } from "../../../utils/api.features";
 import Subcategory from "../../subcategoy/model/subcat.model";
 import Product from "../../product/model/product.model";
+import Image from "../../img/model/img.model";
+import cloudinary from "../../../middlewares/cloudinary";
 
 export const categoryController = {
   getAll: CatchError(async (req: Request, res: Response) => {
@@ -45,10 +47,28 @@ export const categoryController = {
 
       if (!req.user) throw new AppError("Unauthorized", 401);
 
+      let uploadResult;
+      if (req.file?.path) {
+        try {
+          uploadResult = await cloudinary.uploader.upload(req.file.path, {
+            public_id: req.file.filename,
+          });
+        } catch (error) {
+          throw new AppError("Cloudinary upload failed", 500);
+        }
+      } else {
+        throw new AppError("No file uploaded", 400);
+      }
+
+      const img = await Image.create({
+        name: req.file?.originalname,
+        path: uploadResult?.secure_url || "",
+      });
+
       const newCategory: ICategory | null = await Category.create({
         name,
         description,
-        image,
+        image: img,
         createdBy: req.user.id,
       });
 
@@ -99,6 +119,7 @@ export const categoryController = {
           new: true,
         }
       );
+
       if (!findCategory) throw new AppError("Category Not found", 404);
 
       const deletedSubCategories: ISubCategory[] | null =
@@ -118,8 +139,11 @@ export const categoryController = {
       const subCategoryIds = deletedSubCategories.map((sub) => sub._id);
 
       await Product.updateMany(
-        { Subcategory: { $in: subCategoryIds }, deleted: false },
-        { deleted: true }
+        {
+          Subcategory: { $in: subCategoryIds },
+          deleted: false,
+        },
+        { deleted: true, deletedAt: new Date() }
       );
 
       res.status(200).json({
@@ -152,7 +176,7 @@ export const categoryController = {
         },
         {
           deleted: false,
-          deletedAt: new Date(),
+          deletedAt: null,
         },
         {
           new: true,
@@ -169,7 +193,7 @@ export const categoryController = {
       await Promise.all(
         deletedSubCategories.map(async (prod) => {
           prod.deleted = false;
-          prod.deletedAt = new Date();
+          prod.deletedAt = null;
           await prod.save();
         })
       );
@@ -178,7 +202,7 @@ export const categoryController = {
 
       await Product.updateMany(
         { Subcategory: { $in: subCategoryIds }, deleted: true },
-        { deleted: false }
+        { deleted: false, deletedAt: null }
       );
 
       res.status(200).json({

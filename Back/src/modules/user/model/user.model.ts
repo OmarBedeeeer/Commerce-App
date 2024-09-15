@@ -28,11 +28,6 @@ const userSchema = new mongoose.Schema<IUser>(
       trim: true,
       unique: true,
     },
-    address: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     role: {
       type: String,
       enum: ["user", "admin"],
@@ -42,6 +37,12 @@ const userSchema = new mongoose.Schema<IUser>(
       type: Number,
       trim: true,
     },
+    wishList: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
     isVerified: { type: Boolean, default: false },
     deleted: { type: Boolean, default: false },
     deletedAt: { type: Date },

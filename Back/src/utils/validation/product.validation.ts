@@ -39,19 +39,6 @@ export const createProductValidation: RequestHandler[] = [
     .withMessage("Quantity is required")
     .trim()
     .escape(),
-  body("price_offer")
-    .optional()
-    .isNumeric()
-    .custom((value: number, { req }) => {
-      if (value < 0 || value > req.body.price) {
-        throw new Error("invalid price offer");
-      }
-      return true;
-    })
-    .withMessage("Price is required")
-    .isFloat()
-    .trim()
-    .escape(),
 
   param("subCategoryId")
     .notEmpty()
@@ -84,19 +71,6 @@ export const updateProductValidation: RequestHandler[] = [
       return true;
     })
     .withMessage("Price is should be Number")
-    .isFloat()
-    .trim()
-    .escape(),
-  body("price_offer")
-    .optional()
-    .isNumeric()
-    .custom((value: number, { req }) => {
-      if (value < 0 || value > req.body.price) {
-        throw new Error("invalid price offer");
-      }
-      return true;
-    })
-    .withMessage("Price is required")
     .isFloat()
     .trim()
     .escape(),

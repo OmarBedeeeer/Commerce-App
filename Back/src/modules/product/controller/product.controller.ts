@@ -6,7 +6,8 @@ import Subcategory from "../../subcategoy/model/subcat.model";
 import { body, ParamsIds, Query } from "../../../interfaces/Queryinterfaces";
 import { IProduct, ISubCategory } from "../../../interfaces/dbinterfaces";
 import { ApiFeatures } from "../../../utils/api.features";
-import cloudinary, { UploadApiResponse } from "cloudinary";
+// import cloudinary, { UploadApiResponse } from "cloudinary";
+import cloudinary from "../../../middlewares/cloudinary";
 
 export const productController = {
   getProducts: CatchError(async (req: Request, res: Response) => {
@@ -72,8 +73,6 @@ export const productController = {
 
       if (!subCategory) throw new AppError("Subcategory not found", 404);
 
-      if (!req.user) throw new AppError("Unauthorized", 401);
-
       if (!quantity || quantity < 0)
         throw new AppError("Invalid quantity", 400);
 
@@ -96,23 +95,22 @@ export const productController = {
           product: updatedProduct,
         });
       }
-
-      // const uploadResult: UploadApiResponse = await cloudinary.v2.uploader
-      //   .upload(
-      //     "https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
-      //     {
-      //       public_id: "shoes",
-      //     }
-      //   )
-      //   .catch((error) => {
-      //     console.log(error);
-      //   });
-
-      // console.log(uploadResult);
+      let uploadResult;
+      if (req.file?.path) {
+        try {
+          uploadResult = await cloudinary.uploader.upload(req.file.path, {
+            public_id: req.file.filename,
+          });
+        } catch (error) {
+          throw new AppError("Cloudinary upload failed", 500);
+        }
+      } else {
+        throw new AppError("No file uploaded", 400);
+      }
 
       const img = await Image.create({
         name: req.file?.originalname,
-        path: req.file?.filename,
+        path: uploadResult?.secure_url || "",
       });
 
       const newProduct: IProduct | null = await Product.create({
@@ -121,9 +119,9 @@ export const productController = {
         image: img,
         price,
         quantity,
-        created_by: req.user.id,
+        created_by: req.user!.id,
         Subcategory: subCategoryId,
-        modifed_by: req.user.id,
+        modifed_by: req.user!.id,
       });
 
       return res.status(201).json({
