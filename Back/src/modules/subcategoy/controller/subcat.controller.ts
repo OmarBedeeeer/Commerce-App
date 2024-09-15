@@ -6,6 +6,8 @@ import Category from "../../category/model/category.model";
 import { IProduct, ISubCategory } from "../../../interfaces/dbinterfaces";
 import { ApiFeatures } from "../../../utils/api.features";
 import Product from "../../product/model/product.model";
+import cloudinary from "../../../middlewares/cloudinary";
+import Image from "../../img/model/img.model";
 
 export const subcategoryController = {
   subCategories: CatchError(async (req: Request, res: Response) => {
@@ -50,10 +52,28 @@ export const subcategoryController = {
 
       if (!findCategory) throw new AppError("Category not found", 404);
 
+      let uploadResult;
+      if (req.file?.path) {
+        try {
+          uploadResult = await cloudinary.uploader.upload(req.file.path, {
+            public_id: req.file.filename,
+          });
+        } catch (error) {
+          throw new AppError("Cloudinary upload failed", 500);
+        }
+      } else {
+        throw new AppError("No file uploaded", 400);
+      }
+
+      const img = await Image.create({
+        name: req.file?.originalname,
+        path: uploadResult?.secure_url || "",
+      });
+
       const newSubCategory: ISubCategory | null = await Subcategory.create({
         name,
         description,
-        image,
+        image: img,
         category: findCategory._id,
         created_by: findCategory.createdBy,
       });
