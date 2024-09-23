@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const userManage_controller_1 = require("../controller/userManage.controller");
+const user_auth_1 = require("../controller/user.auth");
+const router = (0, express_1.Router)();
+router.post("/register", userManage_controller_1.userAuthController.sginUp);
+router.post("/login", userManage_controller_1.userAuthController.LogIn);
+router.get("/verify/:token", userManage_controller_1.userAuthController.verfyEmail);
+router.post("/reset", userManage_controller_1.userAuthController.forgetPassword);
+router.get("/reset/:token", userManage_controller_1.userAuthController.resetPassword);
+router.patch("/:id/change-password", user_auth_1.authentecation, userManage_controller_1.userAuthController.changePassword);
+router.patch("/:id/deactivate-user", user_auth_1.authentecation, userManage_controller_1.userAuthController.softDeleteUser);
+router.put("/:id/update-profile", user_auth_1.authentecation, userManage_controller_1.userAuthController.updateUser);
+router.delete("/:id/delete-user", user_auth_1.authentecation, userManage_controller_1.userAuthController.deleteUser);
+exports.default = router;

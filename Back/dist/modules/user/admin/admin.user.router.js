@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const admin_user_controller_1 = require("../admin/admin.user.controller");
+const user_auth_1 = require("../controller/user.auth");
+const router = (0, express_1.Router)();
+router.post("/admin-register", admin_user_controller_1.adminAuthController.sginUp);
+router.post("/admin-login", admin_user_controller_1.adminAuthController.LogIn);
+router.patch("/:id/admin-change-password", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), admin_user_controller_1.adminAuthController.changePassword);
+router.put("/:id/admin-update-user", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), admin_user_controller_1.adminAuthController.updateAdmin);
+router.put("/:userId/deactivate-user", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), admin_user_controller_1.adminAuthController.disableUser);
+router.patch("/:userId/enableUser", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), admin_user_controller_1.adminAuthController.enableUser);
+router.delete("/:id/delete-admin", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), admin_user_controller_1.adminAuthController.deleteAdmin);
+exports.default = router;

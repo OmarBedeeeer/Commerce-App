@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const user_auth_1 = require("../../user/controller/user.auth");
+const subcat_controller_1 = require("../controller/subcat.controller");
+const router = (0, express_1.Router)();
+router.get("/subcategories", subcat_controller_1.subcategoryController.subCategories);
+router.get("/subcategories/:subcategoryId", subcat_controller_1.subcategoryController.getSubCategory);
+router.post("/founder", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), subcat_controller_1.subcategoryController.createSubCategory);
+router.patch("/founder/subcategories/:subcategoryId", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), subcat_controller_1.subcategoryController.updateSubCategory);
+router.patch("/founder/subcategories/:subcategoryId/deactive", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), subcat_controller_1.subcategoryController.deactiveSubCategory);
+router.patch("/founder/subcategories/:subcategoryId/reactive", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), subcat_controller_1.subcategoryController.reactiveSubCategory);
+router.delete("/founder/subcategories/:subcategoryId/delete-subcategory", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), subcat_controller_1.subcategoryController.deleteSubCategory);
+exports.default = router;
