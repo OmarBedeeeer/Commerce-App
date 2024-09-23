@@ -11,7 +11,7 @@ router.get("/category-list", categoryController.getAll);
 
 router.get(
   "/category-list/:categoryId",
-  // paramValidation,
+  paramValidation,
   categoryController.getCategory
 );
 
@@ -26,7 +26,7 @@ router.post(
   "/founder/create-category",
   authentecation,
   authorized("admin"),
-  // createCategoryValidation,
+  createCategoryValidation,
   categoryController.createCategory
 );
 
@@ -34,7 +34,7 @@ router.patch(
   "/founder/:categoryId/update-category",
   authentecation,
   authorized("admin"),
-  // updateCategoryValidation,
+  updateCategoryValidation,
   categoryController.updateCategory
 );
 
@@ -42,7 +42,7 @@ router.patch(
   "/founder/:categoryId/deactive-category",
   authentecation,
   authorized("admin"),
-  // paramValidation,
+  paramValidation,
   categoryController.deactiveCategory
 );
 
@@ -50,7 +50,7 @@ router.patch(
   "/founder/:categoryId/recover-category",
   authentecation,
   authorized("admin"),
-  // paramValidation,
+  paramValidation,
   categoryController.restoreCategory
 );
 
@@ -58,7 +58,7 @@ router.delete(
   "/founder/:categoryId/delete-category",
   authentecation,
   authorized("admin"),
-  // paramValidation,
+  paramValidation,
   categoryController.deleteCategory
 );
 

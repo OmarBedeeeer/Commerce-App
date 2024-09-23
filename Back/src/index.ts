@@ -11,18 +11,11 @@ import cartRouter from "./modules/product/router/prodOnCart.router";
 import couponRouter from "./modules/cart/coupon/coupon.router";
 import orderRouter from "./modules/cart/order/order.router";
 import wishListRouter from "./modules/product/router/prodOnWishList.router";
+import reviewsRouter from "./modules/reviews/review.router";
 
 import { AppError } from "./utils/errorhandler";
 const app: Application = express();
 dotenv.config();
-
-import { v2 as cloudinary } from "cloudinary";
-
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
-});
 
 app.use(express.json());
 app.use(express.static("upload"));
@@ -36,6 +29,7 @@ app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/coupon", couponRouter);
 app.use("/api/v1/orders", orderRouter);
 app.use("/api/v1/wishlist", wishListRouter);
+app.use("/api/v1/reviews", reviewsRouter);
 
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   res.status(404).send("Can't find this Page");

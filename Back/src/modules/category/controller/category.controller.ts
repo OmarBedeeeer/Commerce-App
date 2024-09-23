@@ -10,6 +10,8 @@ import {
 import { ApiFeatures } from "../../../utils/api.features";
 import Subcategory from "../../subcategoy/model/subcat.model";
 import Product from "../../product/model/product.model";
+import Image from "../../img/model/img.model";
+import cloudinary from "../../../middlewares/cloudinary";
 
 export const categoryController = {
   getAll: CatchError(async (req: Request, res: Response) => {
@@ -45,10 +47,28 @@ export const categoryController = {
 
       if (!req.user) throw new AppError("Unauthorized", 401);
 
+      let uploadResult;
+      if (req.file?.path) {
+        try {
+          uploadResult = await cloudinary.uploader.upload(req.file.path, {
+            public_id: req.file.filename,
+          });
+        } catch (error) {
+          throw new AppError("Cloudinary upload failed", 500);
+        }
+      } else {
+        throw new AppError("No file uploaded", 400);
+      }
+
+      const img = await Image.create({
+        name: req.file?.originalname,
+        path: uploadResult?.secure_url || "",
+      });
+
       const newCategory: ICategory | null = await Category.create({
         name,
         description,
-        image,
+        image: img,
         createdBy: req.user.id,
       });
 
@@ -156,7 +176,7 @@ export const categoryController = {
         },
         {
           deleted: false,
-          deletedAt: new Date(),
+          deletedAt: null,
         },
         {
           new: true,

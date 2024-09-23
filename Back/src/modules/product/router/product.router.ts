@@ -18,8 +18,8 @@ router.post(
   "/:subCategoryId/create-product",
   authentecation,
   authorized("admin"),
-  // createProductValidation,
   getUploadMiddleware("img"),
+  createProductValidation,
   productController.createProduct
 );
 
@@ -27,28 +27,28 @@ router.patch(
   "/:subCategoryId/:productId/update-product",
   authentecation,
   authorized("admin"),
-  // updateProductValidation,
+  updateProductValidation,
   productController.updateProduct
 );
 
 router.patch(
   "/:subCategoryId/:productId/deactive-product",
   authentecation,
-  // productParamsValidation,
+  productParamsValidation,
   productController.deactiveProduct
 );
 
 router.patch(
   "/:subCategoryId/:productId/reactive-product",
   authentecation,
-  // productParamsValidation,
+  productParamsValidation,
   productController.reactiveProduct
 );
 
 router.delete(
   "/:subCategoryId/:productId/delete-product",
   authentecation,
-  // productParamsValidation,
+  productParamsValidation,
   productController.deleteProduct
 );
 
