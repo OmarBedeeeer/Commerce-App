@@ -35,13 +35,6 @@ exports.createUserValidation = [
         .withMessage("Invalid phone number")
         .trim()
         .escape(),
-    (0, express_validator_1.body)("address")
-        .notEmpty()
-        .withMessage("Address is required")
-        .isLength({ min: 6, max: 500 })
-        .withMessage("Address must be at least 10 characters long and less than 500")
-        .trim()
-        .escape(),
     (0, express_validator_1.body)("role").isLength({ min: 0, max: 0 }).withMessage("Role isn't required"),
     (0, express_validator_1.body)("age").optional().isNumeric().withMessage("Age must be a number").trim(),
     validator_middleware_1.default,
@@ -82,12 +75,6 @@ exports.changePassValidation = [
         .withMessage("New password must be at least 6 characters long and less than 12")
         .trim()
         .escape(),
-    (0, express_validator_1.param)("id")
-        .notEmpty()
-        .withMessage("User ID is required")
-        .isMongoId()
-        .withMessage("Invalid user id")
-        .trim(),
     validator_middleware_1.default,
 ];
 exports.updateUserValidation = [
@@ -109,19 +96,7 @@ exports.updateUserValidation = [
         .withMessage("Invalid phone number")
         .trim()
         .escape(),
-    (0, express_validator_1.body)("address")
-        .optional()
-        .isLength({ min: 10, max: 500 })
-        .withMessage("Address must be at least 10 characters long and less than 500")
-        .trim()
-        .escape(),
     (0, express_validator_1.body)("age").optional().isNumeric().withMessage("Age must be a number").trim(),
-    (0, express_validator_1.param)("id")
-        .notEmpty()
-        .withMessage("User ID is required")
-        .isMongoId()
-        .withMessage("Invalid user id")
-        .trim(),
     validator_middleware_1.default,
 ];
 exports.paramValidation = [

@@ -40,7 +40,7 @@ exports.updateSubCategoryValidation = [
         .withMessage("Description is required")
         .trim()
         .escape(),
-    (0, express_validator_1.param)("subcategoryId")
+    (0, express_validator_1.param)("subCategoryId")
         .notEmpty()
         .withMessage("Subcategory ID is required")
         .isMongoId()
@@ -49,7 +49,7 @@ exports.updateSubCategoryValidation = [
     validator_middleware_1.default,
 ];
 exports.paramValidation = [
-    (0, express_validator_1.param)("subcategoryId")
+    (0, express_validator_1.param)("subCategoryId")
         .notEmpty()
         .withMessage("Subcategory ID is required")
         .isMongoId()

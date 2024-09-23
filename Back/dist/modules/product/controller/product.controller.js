@@ -18,6 +18,7 @@ const img_model_1 = __importDefault(require("../../img/model/img.model"));
 const errorhandler_1 = require("../../../utils/errorhandler");
 const subcat_model_1 = __importDefault(require("../../subcategoy/model/subcat.model"));
 const api_features_1 = require("../../../utils/api.features");
+const cloudinary_1 = __importDefault(require("../../../middlewares/cloudinary"));
 exports.productController = {
     getProducts: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const apiProductFeatures = new api_features_1.ApiFeatures(product_model_1.default.find({ deleted: false }), req.query);
@@ -72,8 +73,6 @@ exports.productController = {
         });
         if (!subCategory)
             throw new errorhandler_1.AppError("Subcategory not found", 404);
-        if (!req.user)
-            throw new errorhandler_1.AppError("Unauthorized", 401);
         if (!quantity || quantity < 0)
             throw new errorhandler_1.AppError("Invalid quantity", 400);
         const existingProduct = yield product_model_1.default.findOne({
@@ -89,9 +88,23 @@ exports.productController = {
                 product: updatedProduct,
             });
         }
+        let uploadResult;
+        if ((_a = req.file) === null || _a === void 0 ? void 0 : _a.path) {
+            try {
+                uploadResult = yield cloudinary_1.default.uploader.upload(req.file.path, {
+                    public_id: req.file.filename,
+                });
+            }
+            catch (error) {
+                throw new errorhandler_1.AppError("Cloudinary upload failed", 500);
+            }
+        }
+        else {
+            throw new errorhandler_1.AppError("No file uploaded", 400);
+        }
         const img = yield img_model_1.default.create({
-            name: (_a = req.file) === null || _a === void 0 ? void 0 : _a.originalname,
-            path: (_b = req.file) === null || _b === void 0 ? void 0 : _b.filename,
+            name: (_b = req.file) === null || _b === void 0 ? void 0 : _b.originalname,
+            path: (uploadResult === null || uploadResult === void 0 ? void 0 : uploadResult.secure_url) || "",
         });
         const newProduct = yield product_model_1.default.create({
             name,

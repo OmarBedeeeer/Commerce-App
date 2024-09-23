@@ -18,9 +18,10 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const errorhandler_1 = require("../../../utils/errorhandler");
 const nodemailer_1 = __importDefault(require("../../../utils/nodemailer"));
+const cart_model_1 = __importDefault(require("../../cart/cart.model"));
 exports.userAuthController = {
     sginUp: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const { email, password, phoneNumber, age, address, username } = req.body;
+        const { email, password, phoneNumber, age, username } = req.body;
         if (req.body.role === "admin")
             throw new errorhandler_1.AppError("Forbidden", 403);
         const user = yield user_model_1.default.findOne({
@@ -38,11 +39,15 @@ exports.userAuthController = {
             phoneNumber,
             password: hashedPassword,
             age,
-            address,
         });
         if (!newUser)
             throw new errorhandler_1.AppError("Something went wrong", 400);
-        const createLink = `${process.env.BACKEND_URL}/users/verify/${token}`;
+        const createLink = `${process.env.BACKEND_URL}api/v1/user/verify/${token}`;
+        const newCart = yield cart_model_1.default.create({
+            user: newUser._id,
+            products: [],
+            total: 0,
+        });
         const message = yield (0, nodemailer_1.default)({
             to: email,
             subject: "Verify your account",
@@ -57,7 +62,7 @@ exports.userAuthController = {
     verfyEmail: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { token } = req.params;
         const { email } = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-        const user = yield user_model_1.default.findOne(email);
+        const user = yield user_model_1.default.findOne({ email });
         if (!user)
             throw new errorhandler_1.AppError("User not found", 404);
         const updatedUser = yield user_model_1.default.findOneAndUpdate({ email }, { isVerified: true }, { new: true });
@@ -67,13 +72,13 @@ exports.userAuthController = {
     })),
     forgetPassword: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { email } = req.body;
-        const user = yield user_model_1.default.findOne(email);
+        const user = yield user_model_1.default.findOne({ email });
         if (!user)
             throw new errorhandler_1.AppError("User not found", 404);
         const token = jsonwebtoken_1.default.sign({ email }, process.env.JWT_SECRET, {
             expiresIn: "10min",
         });
-        const forgetPasswordLink = `${process.env.BACKEND_URL}/users/reset/${token}`;
+        const forgetPasswordLink = `${process.env.BACKEND_URL}api/v1/user/reset/${token}`;
         const sendmailer = yield (0, nodemailer_1.default)({
             to: email,
             subject: "Reset your password",
@@ -86,10 +91,10 @@ exports.userAuthController = {
         const { token } = req.params;
         const { email } = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
         const { newPassword } = req.body;
-        const user = yield user_model_1.default.findOne(email);
+        const user = yield user_model_1.default.findOne({ email });
         if (!user)
             throw new errorhandler_1.AppError("User not found", 404);
-        const hashedPassword = yield bcryptjs_1.default.hash(newPassword, process.env.SECRET_ROUNDS);
+        const hashedPassword = yield bcryptjs_1.default.hash(newPassword, Number(process.env.SECRET_ROUNDS));
         const updatePassword = yield user_model_1.default.findOneAndUpdate({ email }, { password: hashedPassword }, { new: true });
         res.status(200).json({ message: "Password reset successfully" });
     })),
@@ -122,15 +127,12 @@ exports.userAuthController = {
         });
     })),
     changePassword: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a, _b;
         const { oldPassword, newPassword } = req.body;
-        const { id } = req.params;
-        if (!req.user) {
-            throw new errorhandler_1.AppError("Unauthorized", 401);
-        }
-        const user = yield user_model_1.default.findById(id);
+        const user = yield user_model_1.default.findById({ _id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id });
         if (!user)
             throw new errorhandler_1.AppError("User not found", 400);
-        if (user.id != req.user.id)
+        if (user.id != ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id))
             throw new errorhandler_1.AppError("Unauthorized", 401);
         const isMatch = yield bcryptjs_1.default.compare(oldPassword, user.password);
         if (!isMatch) {
@@ -146,16 +148,12 @@ exports.userAuthController = {
         });
     })),
     updateUser: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const { id } = req.params;
-        if (!req.user) {
-            throw new errorhandler_1.AppError("Please Login first!", 400);
-        }
-        const { username, phoneNumber, age, address } = req.body;
-        if (!req.body)
-            throw new errorhandler_1.AppError("Please provide at least one field", 400);
-        if (req.body.role === "admin")
-            throw new errorhandler_1.AppError("Forbidden", 403);
-        const user = yield user_model_1.default.findById(id);
+        const { username, phoneNumber, age } = req.body;
+        const user = yield user_model_1.default.findById({
+            _id: req.user.id,
+            deleted: false,
+        });
+        const id = req.user.id;
         if (!user)
             throw new errorhandler_1.AppError("User not found", 404);
         if (user.id != req.user.id)
@@ -164,7 +162,6 @@ exports.userAuthController = {
             username,
             phoneNumber,
             age,
-            address,
         }, {
             new: true,
         });
@@ -174,14 +171,12 @@ exports.userAuthController = {
         });
     })),
     softDeleteUser: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const { id } = req.params;
-        if (!req.user) {
-            throw new errorhandler_1.AppError("Unauthorized", 401);
-        }
-        const user = yield user_model_1.default.findById(id);
+        var _a, _b;
+        const user = yield user_model_1.default.findById({ _id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id });
+        const id = req.user.id;
         if (!user)
             throw new errorhandler_1.AppError("User not found", 404);
-        if (user.id != req.user.id)
+        if ((user === null || user === void 0 ? void 0 : user.id) != ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id))
             throw new errorhandler_1.AppError("Unauthorized", 401);
         const deleteUser = yield user_model_1.default.findByIdAndUpdate(id, {
             deleted: true,
@@ -189,24 +184,55 @@ exports.userAuthController = {
         }, {
             new: true,
         });
+        const cart = yield cart_model_1.default.findOneAndUpdate({
+            user: id,
+        }, {
+            deleted: true,
+            deletedAt: new Date(),
+        });
         return res.status(200).json({
             message: "User deleted successfully",
-            deleteUser,
+        });
+    })),
+    reactiveUser: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a, _b;
+        const user = yield user_model_1.default.findById({ _id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id });
+        const id = req.user.id;
+        if (!user)
+            throw new errorhandler_1.AppError("User not found", 404);
+        if ((user === null || user === void 0 ? void 0 : user.id) != ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id))
+            throw new errorhandler_1.AppError("Unauthorized", 401);
+        const deleteUser = yield user_model_1.default.findByIdAndUpdate(id, {
+            deleted: false,
+            deletedAt: null,
+        }, {
+            new: true,
+        });
+        const cart = yield cart_model_1.default.findOneAndUpdate({
+            user: id,
+        }, {
+            deleted: false,
+            deletedAt: null,
+        });
+        return res.status(200).json({
+            message: "User reactived successfully",
         });
     })),
     deleteUser: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const { id } = req.params;
-        if (!req.user) {
-            throw new errorhandler_1.AppError("Unauthorized", 401);
-        }
-        const user = yield user_model_1.default.findById(id, {
+        var _a, _b;
+        const user = yield user_model_1.default.findById({
+            _id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id,
             deleted: false,
         });
+        const id = req.user.id;
         if (!user)
             throw new errorhandler_1.AppError("User not found", 404);
-        if (user.id != req.user.id)
+        if (user.id != ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id))
             throw new errorhandler_1.AppError("Unauthorized", 401);
         const deleteUser = yield user_model_1.default.findByIdAndDelete(id);
+        const cart = yield cart_model_1.default.findOneAndDelete({
+            user: id,
+        });
         return res.status(200).json({
             message: "User deleted successfully",
         });

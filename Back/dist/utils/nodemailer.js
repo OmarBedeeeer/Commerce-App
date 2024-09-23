@@ -17,6 +17,8 @@ const sendmail = (_a) => __awaiter(void 0, [_a], void 0, function* ({ to, subjec
     const transporter = nodemailer_1.default.createTransport({
         secure: true,
         service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
         auth: {
             user: process.env.EMAIL,
             pass: process.env.PASSWORD,

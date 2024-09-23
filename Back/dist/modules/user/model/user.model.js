@@ -31,11 +31,6 @@ const userSchema = new mongoose_1.default.Schema({
         trim: true,
         unique: true,
     },
-    address: {
-        type: String,
-        required: true,
-        trim: true,
-    },
     role: {
         type: String,
         enum: ["user", "admin"],
@@ -45,6 +40,12 @@ const userSchema = new mongoose_1.default.Schema({
         type: Number,
         trim: true,
     },
+    wishList: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: "Product",
+        },
+    ],
     isVerified: { type: Boolean, default: false },
     deleted: { type: Boolean, default: false },
     deletedAt: { type: Date },

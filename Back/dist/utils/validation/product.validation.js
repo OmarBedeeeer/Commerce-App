@@ -42,19 +42,6 @@ exports.createProductValidation = [
         .withMessage("Quantity is required")
         .trim()
         .escape(),
-    (0, express_validator_1.body)("price_offer")
-        .optional()
-        .isNumeric()
-        .custom((value, { req }) => {
-        if (value < 0 || value > req.body.price) {
-            throw new Error("invalid price offer");
-        }
-        return true;
-    })
-        .withMessage("Price is required")
-        .isFloat()
-        .trim()
-        .escape(),
     (0, express_validator_1.param)("subCategoryId")
         .notEmpty()
         .withMessage("Name is required")
@@ -85,19 +72,6 @@ exports.updateProductValidation = [
         return true;
     })
         .withMessage("Price is should be Number")
-        .isFloat()
-        .trim()
-        .escape(),
-    (0, express_validator_1.body)("price_offer")
-        .optional()
-        .isNumeric()
-        .custom((value, { req }) => {
-        if (value < 0 || value > req.body.price) {
-            throw new Error("invalid price offer");
-        }
-        return true;
-    })
-        .withMessage("Price is required")
         .isFloat()
         .trim()
         .escape(),

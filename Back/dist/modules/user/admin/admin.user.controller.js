@@ -17,6 +17,7 @@ const user_model_1 = __importDefault(require("../model/user.model"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const errorhandler_1 = require("../../../utils/errorhandler");
+const cart_model_1 = __importDefault(require("../../cart/cart.model"));
 exports.adminAuthController = {
     sginUp: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { email, password, username, phoneNumber, age, address } = req.body;
@@ -37,6 +38,11 @@ exports.adminAuthController = {
         });
         if (!newUser)
             throw new errorhandler_1.AppError("Something went wrong", 400);
+        const newCart = yield cart_model_1.default.create({
+            user: newUser._id,
+            products: [],
+            total: 0,
+        });
         return res.status(201).json({
             message: "User created successfully",
             user: newUser,
@@ -66,18 +72,19 @@ exports.adminAuthController = {
             id: user._id,
             role: user.role,
         }, process.env.JWT_SECRET);
+        const newCart = yield cart_model_1.default.create({
+            user: user._id,
+            products: [],
+            total: 0,
+        });
         return res.status(200).json({
             message: "User logged in successfully",
             token,
         });
     })),
     changePassword: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const { id } = req.params;
         const { oldPassword, newPassword } = req.body;
-        if (!req.user) {
-            throw new errorhandler_1.AppError("Unauthorized", 401);
-        }
-        const user = yield user_model_1.default.findById(id);
+        const user = yield user_model_1.default.findById({ _id: req.user.id });
         if (!user)
             throw new errorhandler_1.AppError("User not found", 404);
         if (user.id != req.user.id)
@@ -93,52 +100,33 @@ exports.adminAuthController = {
         });
     })),
     updateAdmin: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const { id } = req.params;
-        if (!req.user) {
-            throw new errorhandler_1.AppError("Unauthorized", 401);
-        }
-        const { username, phoneNumber, age, address } = req.body;
+        const { username, phoneNumber, age } = req.body;
         if (!req.body)
             throw new errorhandler_1.AppError("Please provide at least one field", 400);
-        const user = yield user_model_1.default.findById(id);
-        if (!user)
-            throw new errorhandler_1.AppError("User not found", 404);
-        if (user.id != req.user.id)
-            throw new errorhandler_1.AppError("Unauthorized", 401);
-        const updateUserProfile = yield user_model_1.default.findByIdAndUpdate(id, {
+        const updateUserProfile = yield user_model_1.default.findByIdAndUpdate({ _id: req.user.id, deleted: false }, {
             username,
             phoneNumber,
             age,
-            address,
         }, {
             new: true,
         });
+        if ((updateUserProfile === null || updateUserProfile === void 0 ? void 0 : updateUserProfile._id.toString()) != req.user.id)
+            throw new errorhandler_1.AppError("Unauthorized", 401);
         return res.status(200).json({
             message: "Profile updated successfully",
-            user: updateUserProfile,
-        });
-    })),
-    deleteAdmin: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const { id } = req.params;
-        if (!req.user) {
-            throw new errorhandler_1.AppError("Unauthorized", 401);
-        }
-        const user = yield user_model_1.default.findById(id);
-        if (!user)
-            throw new errorhandler_1.AppError("User not found", 404);
-        const deleteUser = yield user_model_1.default.findByIdAndDelete(id);
-        return res.status(200).json({
-            message: "User deleted successfully",
         });
     })),
     disableUser: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { userId } = req.params;
-        if (!req.user) {
-            throw new errorhandler_1.AppError("Unauthorized", 401);
-        }
         const user = yield user_model_1.default.findById(userId);
         if (!user)
             throw new errorhandler_1.AppError("User not found", 404);
+        const cart = yield cart_model_1.default.findOneAndUpdate({
+            user: user.id,
+        }, {
+            deleted: true,
+            deletedAt: new Date(),
+        });
         const disableUser = yield user_model_1.default.findByIdAndUpdate(userId, {
             deleted: true,
             deletedAt: new Date(),

@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const prodOnCart_controller_1 = require("../controller/prodOnCart.controller");
+const user_auth_1 = require("../../user/controller/user.auth");
+const prodOnCart_validation_1 = require("../../../utils/validation/prodOnCart.validation");
+const router = (0, express_1.Router)();
+router.get("/", user_auth_1.authentecation, prodOnCart_controller_1.prodOnCart.getProductsOnCart);
+router.post("/:productId", user_auth_1.authentecation, prodOnCart_validation_1.addProductsOnCartValidation, prodOnCart_controller_1.prodOnCart.addProductToCart);
+router.delete("/:productId", user_auth_1.authentecation, prodOnCart_validation_1.deleteProductFromCartValidation, prodOnCart_controller_1.prodOnCart.deleteProductFromCart);
+router.put("/confirm-order", user_auth_1.authentecation, prodOnCart_validation_1.confirmCartValidation, prodOnCart_controller_1.prodOnCart.confirmOrder);
+exports.default = router;

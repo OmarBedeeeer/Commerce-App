@@ -32,9 +32,6 @@ const productSchema = new mongoose_1.default.Schema({
         type: Number,
         required: true,
     },
-    price_offer: {
-        type: Number,
-    },
     quantity: {
         type: Number,
         required: true,
@@ -44,11 +41,12 @@ const productSchema = new mongoose_1.default.Schema({
         type: Number,
         default: 0,
     },
-    ratingCount: {
+    reviews: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: "Review" }],
+    averageRating: {
         type: Number,
         default: 0,
     },
-    ratingAverage: {
+    numReviews: {
         type: Number,
         default: 0,
     },
