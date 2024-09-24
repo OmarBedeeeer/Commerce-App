@@ -13,9 +13,7 @@ const imgSchema = new mongoose.Schema<IImage>({
 });
 
 imgSchema.post(/find/, (docs, next) => {
-  docs.forEach(
-    (doc: IImage) => (doc.path = process.env.BACKEND_URL + doc.path)
-  );
+  docs.forEach((doc: IImage) => (doc.path = doc.path));
 
   next();
 });

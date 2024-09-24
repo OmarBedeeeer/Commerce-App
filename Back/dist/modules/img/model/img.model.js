@@ -15,7 +15,7 @@ const imgSchema = new mongoose_1.default.Schema({
     },
 });
 imgSchema.post(/find/, (docs, next) => {
-    docs.forEach((doc) => (doc.path = process.env.BACKEND_URL + doc.path));
+    docs.forEach((doc) => (doc.path = doc.path));
     next();
 });
 const Image = mongoose_1.default.model("Image", imgSchema);
