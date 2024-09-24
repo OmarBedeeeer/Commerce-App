@@ -7,9 +7,6 @@ const multer_1 = __importDefault(require("multer"));
 const errorhandler_1 = require("../utils/errorhandler");
 const getUploadMiddleware = (fieldName) => {
     const multerStorage = multer_1.default.diskStorage({
-        destination: (req, filee, cb) => {
-            cb(null, "upload/");
-        },
         filename: (req, file, cb) => {
             const ext = file.mimetype.split("/")[1];
             cb(null, `image-${Date.now() - Math.floor(Math.random() * 100)}.${ext}`);
