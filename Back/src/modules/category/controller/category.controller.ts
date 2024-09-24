@@ -16,7 +16,7 @@ import cloudinary from "../../../middlewares/cloudinary";
 export const categoryController = {
   getAll: CatchError(async (req: Request, res: Response) => {
     const apiProductFeatures = new ApiFeatures(
-      Category.find({ deleted: false }),
+      Category.find({ deleted: false }).populate("image"),
       req.query
     );
     apiProductFeatures.filter().sort().paginate();

@@ -22,7 +22,7 @@ const img_model_1 = __importDefault(require("../../img/model/img.model"));
 const cloudinary_1 = __importDefault(require("../../../middlewares/cloudinary"));
 exports.categoryController = {
     getAll: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const apiProductFeatures = new api_features_1.ApiFeatures(category_model_1.default.find({ deleted: false }), req.query);
+        const apiProductFeatures = new api_features_1.ApiFeatures(category_model_1.default.find({ deleted: false }).populate("image"), req.query);
         apiProductFeatures.filter().sort().paginate();
         const categories = yield apiProductFeatures.query;
         if (!categories)
