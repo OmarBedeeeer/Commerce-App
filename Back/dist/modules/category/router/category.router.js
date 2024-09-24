@@ -1,5 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const multer_1 = __importDefault(require("../../../middlewares/multer"));
 const category_validation_1 = require("../../../utils/validation/category.validation");
 const user_auth_1 = require("../../user/controller/user.auth");
 const category_controller_1 = require("../controller/category.controller");
@@ -8,7 +12,7 @@ const router = (0, express_1.Router)();
 router.get("/category-list", category_controller_1.categoryController.getAll);
 router.get("/category-list/:categoryId", category_validation_1.paramValidation, category_controller_1.categoryController.getCategory);
 router.get("/founder/get-all-categories", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), category_controller_1.categoryController.getAllCategories);
-router.post("/founder/create-category", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), category_validation_1.createCategoryValidation, category_controller_1.categoryController.createCategory);
+router.post("/founder/create-category", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), (0, multer_1.default)("img"), category_validation_1.createCategoryValidation, category_controller_1.categoryController.createCategory);
 router.patch("/founder/:categoryId/update-category", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), category_validation_1.updateCategoryValidation, category_controller_1.categoryController.updateCategory);
 router.patch("/founder/:categoryId/deactive-category", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), category_validation_1.paramValidation, category_controller_1.categoryController.deactiveCategory);
 router.patch("/founder/:categoryId/recover-category", user_auth_1.authentecation, (0, user_auth_1.authorized)("admin"), category_validation_1.paramValidation, category_controller_1.categoryController.restoreCategory);
