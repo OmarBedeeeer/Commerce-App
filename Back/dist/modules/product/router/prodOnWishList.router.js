@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const user_auth_1 = require("../../user/controller/user.auth");
+const productOnWishList_controller_1 = require("../controller/productOnWishList.controller");
+const wishlist_validation_1 = require("../../../utils/validation/wishlist.validation");
+const router = (0, express_1.Router)();
+router.get("/", user_auth_1.authentecation, productOnWishList_controller_1.productOnWishList.getWishList);
+router.post("/:productId", user_auth_1.authentecation, wishlist_validation_1.ProductIdToWishListValidation, productOnWishList_controller_1.productOnWishList.addProdToWishList);
+router.delete("/:productId", user_auth_1.authentecation, wishlist_validation_1.ProductIdToWishListValidation, productOnWishList_controller_1.productOnWishList.removeFromWishList);
+exports.default = router;
