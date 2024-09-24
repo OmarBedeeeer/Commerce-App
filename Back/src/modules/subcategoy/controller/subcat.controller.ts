@@ -12,7 +12,7 @@ import Image from "../../img/model/img.model";
 export const subcategoryController = {
   subCategories: CatchError(async (req: Request, res: Response) => {
     const apiProductFeatures = new ApiFeatures(
-      Subcategory.find({ deleted: false }),
+      Subcategory.find({ deleted: false }).populate("image"),
       req.query
     );
     apiProductFeatures.filter().sort().paginate();
@@ -30,7 +30,7 @@ export const subcategoryController = {
       const subCategory: ISubCategory | null = await Subcategory.findOne({
         _id: subCategoryId,
         deleted: false,
-      });
+      }).populate("image");
 
       if (!subCategory) throw new AppError("Subcategory not found", 404);
 

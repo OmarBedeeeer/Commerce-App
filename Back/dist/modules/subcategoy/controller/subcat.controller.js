@@ -22,7 +22,7 @@ const cloudinary_1 = __importDefault(require("../../../middlewares/cloudinary"))
 const img_model_1 = __importDefault(require("../../img/model/img.model"));
 exports.subcategoryController = {
     subCategories: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const apiProductFeatures = new api_features_1.ApiFeatures(subcat_model_1.default.find({ deleted: false }), req.query);
+        const apiProductFeatures = new api_features_1.ApiFeatures(subcat_model_1.default.find({ deleted: false }).populate("image"), req.query);
         apiProductFeatures.filter().sort().paginate();
         const subCategories = yield apiProductFeatures.query;
         if (!subCategories)
@@ -34,7 +34,7 @@ exports.subcategoryController = {
         const subCategory = yield subcat_model_1.default.findOne({
             _id: subCategoryId,
             deleted: false,
-        });
+        }).populate("image");
         if (!subCategory)
             throw new errorhandler_1.AppError("Subcategory not found", 404);
         res.status(200).json(subCategory);
