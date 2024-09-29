@@ -6,7 +6,7 @@ import {
   updateSubCategoryValidation,
   paramValidation,
 } from "../../../utils/validation/subcategory.validation";
-import getUploadMiddleware from "../../../middlewares/multer";
+import { getUploadImgMiddleware } from "../../../middlewares/multer";
 
 const router = Router();
 
@@ -21,7 +21,7 @@ router.post(
   "/founder",
   authentecation,
   authorized("admin"),
-  getUploadMiddleware("img"),
+  getUploadImgMiddleware("img"),
   createSubCategoryValidation,
   subcategoryController.createSubCategory
 );

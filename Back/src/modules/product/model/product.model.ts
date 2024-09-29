@@ -21,10 +21,13 @@ const productSchema = new mongoose.Schema<IProduct>(
       type: String,
       unique: true,
     },
-    image: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Image",
-    },
+    image: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Image",
+      },
+    ],
+
     price: {
       type: Number,
       required: true,

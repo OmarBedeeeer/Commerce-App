@@ -84,9 +84,7 @@ export const productController = {
       if (existingProduct) {
         const updatedProduct: IProduct | null = await Product.findOneAndUpdate(
           { name },
-          {
-            $inc: { quantity: quantity },
-          },
+          { $inc: { quantity: quantity } },
           { new: true }
         );
 
@@ -95,33 +93,43 @@ export const productController = {
           product: updatedProduct,
         });
       }
-      let uploadResult;
-      if (req.file?.path) {
+
+      let uploadResults: Array<{ name: string; path: string }> = [];
+
+      if (req.files && Array.isArray(req.files)) {
         try {
-          uploadResult = await cloudinary.uploader.upload(req.file.path, {
-            public_id: req.file.filename,
-          });
+          for (const file of req.files) {
+            const uploadResult = await cloudinary.uploader.upload(file.path, {
+              public_id: file.filename,
+            });
+
+            uploadResults.push({
+              name: file.originalname,
+              path: uploadResult.secure_url,
+            });
+          }
         } catch (error) {
           throw new AppError("Cloudinary upload failed", 500);
         }
       } else {
-        throw new AppError("No file uploaded", 400);
+        throw new AppError("No files uploaded", 400);
       }
 
-      const img = await Image.create({
-        name: req.file?.originalname,
-        path: uploadResult?.secure_url || "",
-      });
+      const images = await Image.insertMany(
+        uploadResults.map(({ name, path }) => ({ name, path }))
+      );
+
+      const imageIds = images.map((image) => image._id);
 
       const newProduct: IProduct | null = await Product.create({
         name,
         description,
-        image: img,
+        image: imageIds,
         price,
         quantity,
         created_by: req.user!.id,
         Subcategory: subCategoryId,
-        modifed_by: req.user!.id,
+        modified_by: req.user!.id,
       });
 
       return res.status(201).json({

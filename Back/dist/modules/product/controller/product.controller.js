@@ -64,7 +64,6 @@ exports.productController = {
         });
     })),
     createProduct: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a, _b;
         const { name, description, price, quantity } = req.body;
         const { subCategoryId } = req.params;
         const subCategory = yield subcat_model_1.default.findOne({
@@ -80,41 +79,43 @@ exports.productController = {
             deleted: false,
         });
         if (existingProduct) {
-            const updatedProduct = yield product_model_1.default.findOneAndUpdate({ name }, {
-                $inc: { quantity: quantity },
-            }, { new: true });
+            const updatedProduct = yield product_model_1.default.findOneAndUpdate({ name }, { $inc: { quantity: quantity } }, { new: true });
             return res.status(200).json({
                 message: "Product updated successfully",
                 product: updatedProduct,
             });
         }
-        let uploadResult;
-        if ((_a = req.file) === null || _a === void 0 ? void 0 : _a.path) {
+        let uploadResults = [];
+        if (req.files && Array.isArray(req.files)) {
             try {
-                uploadResult = yield cloudinary_1.default.uploader.upload(req.file.path, {
-                    public_id: req.file.filename,
-                });
+                for (const file of req.files) {
+                    const uploadResult = yield cloudinary_1.default.uploader.upload(file.path, {
+                        public_id: file.filename,
+                    });
+                    uploadResults.push({
+                        name: file.originalname,
+                        path: uploadResult.secure_url,
+                    });
+                }
             }
             catch (error) {
                 throw new errorhandler_1.AppError("Cloudinary upload failed", 500);
             }
         }
         else {
-            throw new errorhandler_1.AppError("No file uploaded", 400);
+            throw new errorhandler_1.AppError("No files uploaded", 400);
         }
-        const img = yield img_model_1.default.create({
-            name: (_b = req.file) === null || _b === void 0 ? void 0 : _b.originalname,
-            path: (uploadResult === null || uploadResult === void 0 ? void 0 : uploadResult.secure_url) || "",
-        });
+        const images = yield img_model_1.default.insertMany(uploadResults.map(({ name, path }) => ({ name, path })));
+        const imageIds = images.map((image) => image._id);
         const newProduct = yield product_model_1.default.create({
             name,
             description,
-            image: img,
+            image: imageIds,
             price,
             quantity,
             created_by: req.user.id,
             Subcategory: subCategoryId,
-            modifed_by: req.user.id,
+            modified_by: req.user.id,
         });
         return res.status(201).json({
             message: "Product created successfully",

@@ -28,10 +28,12 @@ const categorySchema = new mongoose_1.default.Schema({
         lowercase: true,
         unique: true,
     },
-    image: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: "Image",
-    },
+    image: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: "Image",
+        },
+    ],
     deleted: {
         type: Boolean,
         default: false,

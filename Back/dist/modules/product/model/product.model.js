@@ -24,10 +24,12 @@ const productSchema = new mongoose_1.default.Schema({
         type: String,
         unique: true,
     },
-    image: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: "Image",
-    },
+    image: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: "Image",
+        },
+    ],
     price: {
         type: Number,
         required: true,

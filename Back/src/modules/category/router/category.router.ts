@@ -1,4 +1,4 @@
-import getUploadMiddleware from "../../../middlewares/multer";
+import { getUploadImgMiddleware } from "../../../middlewares/multer";
 import {
   createCategoryValidation,
   paramValidation,
@@ -27,7 +27,7 @@ router.post(
   "/founder/create-category",
   authentecation,
   authorized("admin"),
-  getUploadMiddleware("img"),
+  getUploadImgMiddleware("img"),
   createCategoryValidation,
   categoryController.createCategory
 );
