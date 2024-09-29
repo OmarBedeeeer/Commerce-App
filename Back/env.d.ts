@@ -9,5 +9,6 @@ declare namespace NodeJS {
     readonly CLOUD_NAME: string;
     readonly API_KEY: string;
     readonly API_SECRET: string;
+    readonly FRONTEND_URL: string;
   }
 }

@@ -12,13 +12,33 @@ import couponRouter from "./modules/cart/coupon/coupon.router";
 import orderRouter from "./modules/cart/order/order.router";
 import wishListRouter from "./modules/product/router/prodOnWishList.router";
 import reviewsRouter from "./modules/reviews/review.router";
-
+import helmet from "helmet";
 import { AppError } from "./utils/errorhandler";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+
 const app: Application = express();
+
 dotenv.config();
 
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("upload"));
+app.use(
+  cors({
+    origin: [process.env.FRONTEND_URL],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "X-CSRF-Token",
+      "X-API-KEY",
+      "Authorization",
+      "Content-Type",
+    ],
+    credentials: true,
+  })
+);
+
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/user", addressRouter);
 app.use("/api/v1/founder", adminRouter);
