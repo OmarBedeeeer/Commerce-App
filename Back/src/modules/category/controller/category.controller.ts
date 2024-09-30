@@ -20,7 +20,6 @@ export const categoryController = {
       req.query
     );
     apiProductFeatures.filter().sort().paginate();
-    console.log(123);
     const categories: ICategory[] = await apiProductFeatures.query;
 
     if (!categories) throw new AppError("Categories not found", 404);
@@ -30,7 +29,6 @@ export const categoryController = {
   getCategory: CatchError(
     async (req: Request<ParamsIds, {}, {}>, res: Response) => {
       const { categoryId } = req.params;
-      console.log(categoryId);
       const category: ICategory | null = await Category.findById({
         _id: categoryId,
         deleted: false,
