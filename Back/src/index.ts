@@ -12,7 +12,7 @@ import couponRouter from "./modules/cart/coupon/coupon.router";
 import orderRouter from "./modules/cart/order/order.router";
 import wishListRouter from "./modules/product/router/prodOnWishList.router";
 import reviewsRouter from "./modules/reviews/review.router";
-import helmet from "helmet";
+// import helmet from "helmet";
 import { AppError } from "./utils/errorhandler";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -21,7 +21,7 @@ const app: Application = express();
 
 dotenv.config();
 
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+// app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("upload"));
