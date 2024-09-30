@@ -21,7 +21,7 @@ const api_features_1 = require("../../../utils/api.features");
 const cloudinary_1 = __importDefault(require("../../../middlewares/cloudinary"));
 exports.productController = {
     getProducts: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const apiProductFeatures = new api_features_1.ApiFeatures(product_model_1.default.find({ deleted: false }), req.query);
+        const apiProductFeatures = new api_features_1.ApiFeatures(product_model_1.default.find({ deleted: false }).populate("image").populate("reviews"), req.query);
         apiProductFeatures
             .filter()
             .sort()

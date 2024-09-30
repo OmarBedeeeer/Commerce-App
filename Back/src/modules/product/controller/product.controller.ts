@@ -12,7 +12,7 @@ import cloudinary from "../../../middlewares/cloudinary";
 export const productController = {
   getProducts: CatchError(async (req: Request, res: Response) => {
     const apiProductFeatures = new ApiFeatures(
-      Product.find({ deleted: false }),
+      Product.find({ deleted: false }).populate("image").populate("reviews"),
       req.query
     );
     apiProductFeatures
