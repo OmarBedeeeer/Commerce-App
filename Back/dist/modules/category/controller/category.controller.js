@@ -24,6 +24,7 @@ exports.categoryController = {
     getAll: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const apiProductFeatures = new api_features_1.ApiFeatures(category_model_1.default.find({ deleted: false }).populate("image"), req.query);
         apiProductFeatures.filter().sort().paginate();
+        console.log(123);
         const categories = yield apiProductFeatures.query;
         if (!categories)
             throw new errorhandler_1.AppError("Categories not found", 404);
@@ -31,10 +32,11 @@ exports.categoryController = {
     })),
     getCategory: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { categoryId } = req.params;
-        const category = yield category_model_1.default.findOne({
+        console.log(categoryId);
+        const category = yield category_model_1.default.findById({
             _id: categoryId,
             deleted: false,
-        });
+        }).populate("image");
         if (!category)
             throw new errorhandler_1.AppError("Category not found", 404);
         res.status(200).json(category);
@@ -120,7 +122,7 @@ exports.categoryController = {
         });
     })),
     getAllCategories: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const apiProductFeatures = new api_features_1.ApiFeatures(category_model_1.default.find({ deleted: false }), req.query);
+        const apiProductFeatures = new api_features_1.ApiFeatures(category_model_1.default.find({ deleted: false }).populate("image"), req.query);
         apiProductFeatures.filter().sort().paginate();
         const categories = yield apiProductFeatures.query;
         if (!categories)
