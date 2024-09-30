@@ -3,6 +3,8 @@ import { CatchError, AppError } from "../../utils/errorhandler";
 import { Request, Response } from "express";
 import Product from "../product/model/product.model";
 import { ParamsIds } from "../../interfaces/Queryinterfaces";
+import { IProduct, IReview } from "../../interfaces/dbinterfaces";
+import { ObjectId } from "mongoose";
 
 export const reviewController = {
   create: CatchError(async (req: Request<ParamsIds>, res: Response) => {
@@ -10,7 +12,7 @@ export const reviewController = {
     const { rating, comment } = req.body;
     const { user } = req;
 
-    const product = await Product.findById(productId);
+    const product: IProduct | null = await Product.findById(productId);
     if (!product) throw new AppError("Product not found", 404);
 
     const existingReview = await Review.findOne({
@@ -26,6 +28,10 @@ export const reviewController = {
       rating,
       comment,
     });
+
+    product.reviews!.push(review._id);
+
+    await product.save();
 
     res.status(201).json({
       message: "Review created successfully",

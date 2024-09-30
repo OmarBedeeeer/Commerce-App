@@ -36,6 +36,8 @@ exports.reviewController = {
             rating,
             comment,
         });
+        product.reviews.push(review._id);
+        yield product.save();
         res.status(201).json({
             message: "Review created successfully",
             review,

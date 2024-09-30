@@ -40,7 +40,7 @@ export const productController = {
   getProduct: CatchError(
     async (req: Request<{}, {}, {}, Query>, res: Response) => {
       const { product } = req.query;
-      const products: IProduct[] = await Product.find({
+      const products: IProduct | null = await Product.findOne({
         slug: product,
         deleted: false,
       })
@@ -51,8 +51,11 @@ export const productController = {
         .populate({
           path: "image",
           select: "name path",
+        })
+        .populate({
+          path: "reviews",
+          select: "comment rating user",
         });
-
       if (!products) throw new AppError("Products not found", 404);
 
       res.status(200).json({
