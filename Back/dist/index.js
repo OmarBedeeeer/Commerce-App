@@ -18,8 +18,10 @@ const order_router_1 = __importDefault(require("./modules/cart/order/order.route
 const prodOnWishList_router_1 = __importDefault(require("./modules/product/router/prodOnWishList.router"));
 const review_router_1 = __importDefault(require("./modules/reviews/review.router"));
 const errorhandler_1 = require("./utils/errorhandler");
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const app = (0, express_1.default)();
 dotenv_1.default.config();
+app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.static("upload"));
 app.use("/api/v1/user", user_router_1.default);
