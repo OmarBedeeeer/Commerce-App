@@ -28,7 +28,7 @@ app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.static("upload"));
 app.use((0, cors_1.default)({
-    origin: [process.env.FRONTEND_URL],
+    origin: ["http://localhost:4200"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
         "X-CSRF-Token",
