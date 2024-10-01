@@ -17,11 +17,27 @@ const coupon_router_1 = __importDefault(require("./modules/cart/coupon/coupon.ro
 const order_router_1 = __importDefault(require("./modules/cart/order/order.router"));
 const prodOnWishList_router_1 = __importDefault(require("./modules/product/router/prodOnWishList.router"));
 const review_router_1 = __importDefault(require("./modules/reviews/review.router"));
+const helmet_1 = __importDefault(require("helmet"));
 const errorhandler_1 = require("./utils/errorhandler");
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 dotenv_1.default.config();
+app.use((0, helmet_1.default)({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.static("upload"));
+app.use((0, cors_1.default)({
+    origin: [process.env.FRONTEND_URL],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+        "X-CSRF-Token",
+        "X-API-KEY",
+        "Authorization",
+        "Content-Type",
+    ],
+    credentials: true,
+}));
 app.use("/api/v1/user", user_router_1.default);
 app.use("/api/v1/user", address_router_1.default);
 app.use("/api/v1/founder", admin_user_router_1.default);
