@@ -20,7 +20,6 @@ export const categoryController = {
       req.query
     );
     apiProductFeatures.filter().sort().paginate();
-
     const categories: ICategory[] = await apiProductFeatures.query;
 
     if (!categories) throw new AppError("Categories not found", 404);
@@ -30,11 +29,10 @@ export const categoryController = {
   getCategory: CatchError(
     async (req: Request<ParamsIds, {}, {}>, res: Response) => {
       const { categoryId } = req.params;
-
-      const category: ICategory | null = await Category.findOne({
+      const category: ICategory | null = await Category.findById({
         _id: categoryId,
         deleted: false,
-      });
+      }).populate("image");
 
       if (!category) throw new AppError("Category not found", 404);
       res.status(200).json(category);
@@ -155,7 +153,7 @@ export const categoryController = {
 
   getAllCategories: CatchError(async (req: Request, res: Response) => {
     const apiProductFeatures = new ApiFeatures(
-      Category.find({ deleted: false }),
+      Category.find({ deleted: false }).populate("image"),
       req.query
     );
     apiProductFeatures.filter().sort().paginate();

@@ -21,7 +21,7 @@ const api_features_1 = require("../../../utils/api.features");
 const cloudinary_1 = __importDefault(require("../../../middlewares/cloudinary"));
 exports.productController = {
     getProducts: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const apiProductFeatures = new api_features_1.ApiFeatures(product_model_1.default.find({ deleted: false }), req.query);
+        const apiProductFeatures = new api_features_1.ApiFeatures(product_model_1.default.find({ deleted: false }).populate("image").populate("reviews"), req.query);
         apiProductFeatures
             .filter()
             .sort()
@@ -45,7 +45,7 @@ exports.productController = {
     })),
     getProduct: (0, errorhandler_1.CatchError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { product } = req.query;
-        const products = yield product_model_1.default.find({
+        const products = yield product_model_1.default.findOne({
             slug: product,
             deleted: false,
         })
@@ -56,6 +56,10 @@ exports.productController = {
             .populate({
             path: "image",
             select: "name path",
+        })
+            .populate({
+            path: "reviews",
+            select: "comment rating user",
         });
         if (!products)
             throw new errorhandler_1.AppError("Products not found", 404);

@@ -31,7 +31,7 @@ export interface IProduct extends ICategory {
   averageRating?: number;
   numReviews?: number;
   sold?: number;
-  reviews?: Types.ObjectId[] | IReview[];
+  reviews?: Types.ObjectId[];
 }
 
 export interface IUser extends Document {
@@ -88,6 +88,7 @@ export interface IOrder extends Document {
 }
 
 export interface IReview extends Document {
+  _id: mongoose.Types.ObjectId;
   product: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
   rating: number;
