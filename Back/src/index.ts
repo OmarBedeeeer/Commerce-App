@@ -12,15 +12,10 @@ import couponRouter from "./modules/cart/coupon/coupon.router";
 import orderRouter from "./modules/cart/order/order.router";
 import wishListRouter from "./modules/product/router/prodOnWishList.router";
 import reviewsRouter from "./modules/reviews/review.router";
-import cookieParser from "cookie-parser";
-// import helmet from "helmet";
 import { AppError } from "./utils/errorhandler";
 const app: Application = express();
 
 dotenv.config();
-
-// app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
-app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("upload"));
 app.use("/api/v1/user", userRouter);
