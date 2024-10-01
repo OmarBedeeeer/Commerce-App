@@ -27,7 +27,6 @@ app.use(express.json());
 app.use(express.static("upload"));
 app.use(
   cors({
-    origin: ["http://localhost:4200"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "X-CSRF-Token",
